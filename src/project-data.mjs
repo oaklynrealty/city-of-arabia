@@ -49,7 +49,7 @@ export const project = {
   highlights: [
     { label: "Payment Plan", value: "60 / 40" },
     { label: "Starting Price", value: "AED 1.4M" },
-    { label: "EOI From", value: "AED 70K" },
+    { label: "EOI From", value: "AED 40K" },
     { label: "Location", value: "City of Arabia" },
     { label: "Lifestyle", value: "Lagoons & Greenery" },
     { label: "Unit Focus", value: "1 Bedroom" }
