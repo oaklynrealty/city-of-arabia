@@ -31,17 +31,17 @@ export const project = {
   seo: {
     title: "BEYOND Dubailand Apartments Near Global Village",
     description:
-      "Explore 1 to 3 bedroom apartments by BEYOND in Dubailand next to Global Village. From AED 1.4M with 10% booking."
+      "Explore 1 to 3 bedroom apartments by BEYOND in Dubailand next to Global Village. From AED 1.1M with 10% booking."
   },
   hero: {
     eyebrow: "Presented by Oaklyn Realty",
     title: "BEYOND's\nFirst Master community",
     subtitle:
-      "Next to Global Village, this upcoming BEYOND launch introduces 1 to 3 bedroom apartments in a greener low-rise setting, from AED 1.4M with 10% booking, subject to developer confirmation.",
+      "Next to Global Village, this upcoming BEYOND launch introduces 1 to 3 bedroom apartments in a greener low-rise setting, from AED 1.1M with 10% booking, subject to developer confirmation.",
     background: asset("01-hero-community-view.jpg"),
     primaryCta: "Request Price List",
     secondaryCta: "Book a Callback",
-    badges: ["1 to 3 bedroom apartments", "From AED 1.4M", "10% booking", "Dubailand next to Global Village"]
+    badges: ["1 to 3 bedroom apartments", "From AED 1.1M", "10% booking", "Dubailand next to Global Village"]
   },
   heroSlides: [
     { image: asset("01-hero-community-view.jpg"), label: "BEYOND master community hero view" },
@@ -53,7 +53,7 @@ export const project = {
   ],
   highlights: [
     { label: "Residence Types", value: "1 to 3 Beds" },
-    { label: "Starting Price", value: "From AED 1.4M" },
+    { label: "Starting Price", value: "From AED 1.1M" },
     { label: "Booking Amount", value: "10% to Reserve" },
     { label: "Location", value: "Dubailand" },
     { label: "Payment Plan", value: "Flexible" },
@@ -198,7 +198,7 @@ export const project = {
     },
     {
       question: "What is the starting price?",
-      answer: "The launch guidance shared for this page starts from AED 1.4M, subject to developer confirmation and unit selection."
+      answer: "The launch guidance shared for this page starts from AED 1.1M, subject to developer confirmation and unit selection."
     },
     {
       question: "How much do I need to book?",
