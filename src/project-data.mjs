@@ -35,7 +35,7 @@ export const project = {
   },
   hero: {
     eyebrow: "Presented by Oaklyn Realty",
-    title: "BEYOND's First master community",
+    title: "BEYOND's First Master community",
     subtitle:
       "Next to Global Village, this upcoming BEYOND launch introduces 1 to 3 bedroom apartments in a greener low-rise setting, from AED 1.4M with 10% booking, subject to developer confirmation.",
     background: asset("01-hero-community-view.jpg"),
