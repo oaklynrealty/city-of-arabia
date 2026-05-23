@@ -38,7 +38,7 @@ export const project = {
   },
   hero: {
     eyebrow: "Presented by Oaklyn Realty",
-    title: "BEYOND's\nfirst master community",
+    title: "BEYOND's\nFirst Master Community",
     subtitle:
       "Discover 1 to 3 bedroom apartments in BEYOND's first master community, next to Global Village in Dubailand, from AED 1M with 10% booking and a 40/60 payment plan.",
     background: asset("01-hero-community-view.jpg"),
