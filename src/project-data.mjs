@@ -34,18 +34,18 @@ export const project = {
   seo: {
     title: "BEYOND Dubailand Apartments Near Global Village",
     description:
-      "Explore 1 to 3 bedroom apartments by BEYOND in Dubailand next to Global Village. From AED 1.1M with 10% booking and a 60/40 payment plan."
+      "Explore 1 to 3 bedroom apartments by BEYOND in Dubailand next to Global Village. From AED 1M with 10% booking and a 40/60 payment plan."
   },
   hero: {
     eyebrow: "Presented by Oaklyn Realty",
     title: "BEYOND's\nfirst master community",
     subtitle:
-      "Discover 1 to 3 bedroom apartments in BEYOND's first master community, next to Global Village in Dubailand, from AED 1.1M with 10% booking and a 60/40 payment plan.",
+      "Discover 1 to 3 bedroom apartments in BEYOND's first master community, next to Global Village in Dubailand, from AED 1M with 10% booking and a 40/60 payment plan.",
     background: asset("01-hero-community-view.jpg"),
     primaryCta: "Get Price List",
     secondaryCta: "WhatsApp Us",
-    panelText: "Get the latest price list, 60/40 payment plan, and available unit guidance from Oaklyn Realty.",
-    badges: ["1 to 3 bedroom apartments", "From AED 1.1M", "10% booking", "60/40 payment plan", "Dubailand next to Global Village"]
+    panelText: "Get the latest price list, 40/60 payment plan, and available unit guidance from Oaklyn Realty.",
+    badges: ["1 to 3 bedroom apartments", "From AED 1M", "10% booking", "40/60 payment plan", "Dubailand next to Global Village"]
   },
   heroSlides: [
     { image: asset("01-hero-community-view.jpg"), label: "BEYOND master community hero view" },
@@ -57,9 +57,9 @@ export const project = {
   ],
   highlights: [
     { label: "Residence Types", value: "1 to 3 Beds" },
-    { label: "Starting Price", value: "From AED 1.1M" },
+    { label: "Starting Price", value: "From AED 1M" },
     { label: "Booking Amount", value: "10% to Reserve" },
-    { label: "Payment Plan", value: "60/40" },
+    { label: "Payment Plan", value: "40/60" },
     { label: "Location", value: "Dubailand" },
     { label: "Launch Angle", value: "Master Community" }
   ],
@@ -93,7 +93,7 @@ export const project = {
     eyebrow: "Payment Plan",
     title: "The launch essentials",
     text:
-      "The current brief indicates 10% to book within a 60/40 payment plan structure. Exact milestone dates remain subject to the latest developer release.",
+      "The current brief indicates 10% to book within a 40/60 payment plan structure. Exact milestone dates remain subject to the latest developer release.",
     steps: [
       {
         label: "Reserve",
@@ -202,7 +202,7 @@ export const project = {
     },
     {
       question: "What is the starting price?",
-      answer: "The launch guidance shared for this page starts from AED 1.1M, subject to developer confirmation and unit selection."
+      answer: "The launch guidance shared for this page starts from AED 1M, subject to developer confirmation and unit selection."
     },
     {
       question: "How much do I need to book?",
@@ -210,7 +210,7 @@ export const project = {
     },
     {
       question: "What is the payment plan?",
-      answer: "The current launch guidance shared for this page indicates a 60/40 payment plan, subject to final developer confirmation."
+      answer: "The current launch guidance shared for this page indicates a 40/60 payment plan, subject to final developer confirmation."
     }
   ],
   trustPoints: [
@@ -258,7 +258,7 @@ export const project = {
     projectRequirementsPlaceholder: "Select project requirement",
     preferredProjects: [
       "Price List",
-      "Payment Plan 60/40",
+      "Payment Plan 40/60",
       "Brochure",
       "Availability Update",
       "Site Visit",
@@ -267,7 +267,7 @@ export const project = {
     propertyTypes: ["Dubailand - Next to Global Village", "Dubailand", "I am exploring options"],
     messagePlaceholder: "Add comments, preferred contact time, or any specific request.",
     points: ["First and last name", "Phone number with country code", "Valid email, bedroom choice, project requirements, and comments"],
-    whatsappPrefill: "Hello, I would like the latest price list and 60/40 payment plan for BEYOND in Dubailand next to Global Village.",
+    whatsappPrefill: "Hello, I would like the latest price list and 40/60 payment plan for BEYOND in Dubailand next to Global Village.",
     consent:
       "By submitting this form, you agree to be contacted by our property consultants regarding your inquiry.",
     sensitiveDataNotice:
