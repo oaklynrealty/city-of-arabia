@@ -76,7 +76,7 @@ const sharedProject = {
     { label: "Unit Types", value: "1, 2, and 3-bedroom apartments" },
     { label: "Starting Price", value: "From AED 1,000,000, subject to developer confirmation" },
     { label: "Payment Plan", value: "40% during construction / 60% on handover" },
-    { label: "Master Community", value: "City of Arabia — 14 million sq ft" }
+    { label: "Master Community", value: "City of Arabia — 16.5 million sq ft" }
   ],
   unitCardsSection: {
     eyebrow: "Unit Types & Sizes",
@@ -89,9 +89,9 @@ const sharedProject = {
     items: [
       {
         title: "1 Bedroom Apartment",
-        size: "550-700 sq ft",
+        size: "From 750 sq ft",
         price: "From AED 1,000,000",
-        pricePerSqft: "AED 1,430-1,820"
+        pricePerSqft: "AED 1,350"
       },
       {
         title: "2 Bedroom Apartment",
@@ -166,7 +166,7 @@ const sharedProject = {
       },
       {
         title: "Early-entry pricing",
-        text: "From AED 1M in a 14 million sq ft master community, with final availability confirmed before reservation."
+        text: "From AED 1M in a 16.5 million sq ft master community, with final availability confirmed before reservation."
       },
       {
         title: "Transport-led positioning",
@@ -174,7 +174,7 @@ const sharedProject = {
       },
       {
         title: "Market reference, not a forecast",
-        text: "Dubailand recorded 11.4% average YoY price growth in ValuStrat Q1 2026; future performance is not guaranteed."
+        text: "Dubailand recorded 11.4% average YoY price growth in ValuStrat Q1 2026, useful context when comparing early-entry pricing."
       }
     ]
   },
