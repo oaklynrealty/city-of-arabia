@@ -220,10 +220,7 @@ const sharedProject = {
       question: "What is the payment plan?",
       answer: "The stated structure is 40% during construction and 60% on handover, subject to developer confirmation."
     },
-    {
-      question: "Is the market growth data a guarantee?",
-      answer: "No. Historical market data and metro premiums are references only and do not guarantee ROI, rental income, or resale value."
-    }
+    
   ],
   form: {
     title: "Request Arancia Yards Details",
