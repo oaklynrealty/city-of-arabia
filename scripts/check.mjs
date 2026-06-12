@@ -56,7 +56,7 @@ assert(!clientJs.includes('event: "phone_call_click"'), "client.js: call trackin
 assert(!clientJs.includes("whatsappModalStatus"), "client.js: WhatsApp modal progress state should not exist");
 assert(!clientJs.includes("startWhatsAppProgressState"), "client.js: WhatsApp should use full-screen verification instead of modal progress");
 assert(!clientJs.includes("whatsapp_progress"), "client.js: WhatsApp modal progress config should not be used");
-assert(clientJs.includes('event: "whatsapp_conversion"'), "client.js: WhatsApp should push direct conversion event");
+assert(clientJs.includes('event: "whatsapp_cta_conversion"'), "client.js: WhatsApp should push direct CTA conversion event");
 assert(!clientJs.includes("openWhatsAppModal(target);"), "client.js: WhatsApp clicks should not open a modal");
 
 const validateJsonLd = (html, file, minimumBlocks = 3) => {
@@ -92,7 +92,8 @@ const sharedTrackingTerms = [
 ];
 
 const whatsappTrackingTerms = [
-  "whatsapp_conversion",
+  "whatsapp_cta_click",
+  "whatsapp_cta_conversion",
   "data-whatsapp-cta",
   "destination_url",
   "cta_location",
@@ -188,7 +189,7 @@ for (const file of landingFiles) {
   }
 
   assert(html.includes('data-whatsapp-cta'), `${file}: missing WhatsApp CTA`);
-  assert(!html.includes('data-whatsapp-modal'), `${file}: WhatsApp modal should not be rendered`);
+  assert(!html.includes('data-whatsapp-modal'), `${file}: WhatsApp modal should not be rendered);
   assert(html.includes('name="fbclid"'), `${file}: missing Meta click ID hidden field`);
   assert(html.includes('name="ttclid"'), `${file}: missing TikTok click ID hidden field`);
   assert(html.includes('name="ScCid"'), `${file}: missing Snapchat click ID hidden field`);
