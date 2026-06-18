@@ -14,7 +14,7 @@ const sharedProject = {
   routePath: "/__oaklyn-lang/en",
   alternateThankYouPath: "/__oaklyn-lang/en-thank-you",
   homeHref: "/",
-  assetVersion: "20260610-arancia-yards-info-update",
+  assetVersion: "20260618-arancia-form-qr-update",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
   whatsappWebhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/4brjlen/",
   blacklistCheckUrl:
@@ -285,6 +285,11 @@ const sharedProject = {
     address: "Oxford Tower, Office 607, 6th Floor, Business Bay, Dubai, UAE",
     license:
       "Oaklyn Real Estate L.L.C. — DED Licence 1589593 · RERA ORN 59210. Regulated by Dubai DET and Dubai Land Department.",
+    qrPermit: {
+      image: asset("arancia-yards-regulatory-qr.jpeg"),
+      label: "Regulatory QR",
+      alt: "Arancia Yards regulatory QR code"
+    },
     copyright: "Copyright © 2026 Oaklyn Real Estate L.L.C. All rights reserved.",
     disclaimer:
       "All information on this page is provided for general guidance only. Property details, pricing, and availability are subject to change without prior notice."

@@ -27,6 +27,7 @@ const requiredFiles = [
   "index-ar.html",
   "styles.css",
   "client.js",
+  "assets/arancia-yards/arancia-yards-regulatory-qr.jpeg",
   `${publicRoutePath}/index.html`,
   `${publicThankYouPath}/index.html`,
   `${englishInternalRoutePath}/index.html`,
@@ -192,6 +193,7 @@ for (const file of landingFiles) {
   assert(html.includes("data-bottom-lead-form"), `${file}: missing bottom lead form`);
   assert(html.includes('id="bottom_phone_country"'), `${file}: missing bottom country code field`);
   assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
+  assert(html.includes("arancia-yards-regulatory-qr.jpeg"), `${file}: missing regulatory QR image`);
 
   for (const field of requiredVisibleFields) {
     assert(html.includes(field), `${file}: missing compliant form field ${field}`);

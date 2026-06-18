@@ -1205,6 +1205,33 @@ h1 span,
   margin-top: 0.9rem;
 }
 
+.footer-qr {
+  display: inline-grid;
+  gap: 0.45rem;
+  justify-items: center;
+  margin: 1rem 0 0;
+  padding: 0.55rem;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.footer-qr img {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.footer-qr figcaption {
+  color: rgba(232, 225, 219, 0.62);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .copyright {
   margin-top: 1.2rem;
   color: rgba(11, 29, 58, 0.44);

@@ -507,6 +507,10 @@ const renderFooter = () => `
             <a href="${escapeHtml(company.privacyUrl)}">${escapeHtml(t("footer_privacy_link"))}</a>
             <a href="${escapeHtml(company.termsUrl)}">${escapeHtml(t("footer_terms_link"))}</a>
           </div>
+          ${project.footer?.qrPermit?.image ? `<figure class="footer-qr">
+            <img src="${escapeHtml(withAssetVersion(project.footer.qrPermit.image))}" alt="${escapeHtml(project.footer.qrPermit.alt || "Regulatory QR code")}" loading="lazy" decoding="async">
+            <figcaption>${escapeHtml(project.footer.qrPermit.label || "Regulatory QR")}</figcaption>
+          </figure>` : ""}
         </div>
       </div>
       <p class="copyright">${escapeHtml(project.footer?.license || t("footer_copyright"))}</p>
