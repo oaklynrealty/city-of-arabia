@@ -194,6 +194,7 @@ for (const file of landingFiles) {
   assert(html.includes('id="bottom_phone_country"'), `${file}: missing bottom country code field`);
   assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
   assert(html.includes("arancia-yards-regulatory-qr.jpeg"), `${file}: missing regulatory QR image`);
+  assert(html.includes("permit-qr-badge"), `${file}: missing fixed regulatory QR badge`);
 
   for (const field of requiredVisibleFields) {
     assert(html.includes(field), `${file}: missing compliant form field ${field}`);

@@ -507,10 +507,6 @@ const renderFooter = () => `
             <a href="${escapeHtml(company.privacyUrl)}">${escapeHtml(t("footer_privacy_link"))}</a>
             <a href="${escapeHtml(company.termsUrl)}">${escapeHtml(t("footer_terms_link"))}</a>
           </div>
-          ${project.footer?.qrPermit?.image ? `<figure class="footer-qr">
-            <img src="${escapeHtml(withAssetVersion(project.footer.qrPermit.image))}" alt="${escapeHtml(project.footer.qrPermit.alt || "Regulatory QR code")}" loading="lazy" decoding="async">
-            <figcaption>${escapeHtml(project.footer.qrPermit.label || "Regulatory QR")}</figcaption>
-          </figure>` : ""}
         </div>
       </div>
       <p class="copyright">${escapeHtml(project.footer?.license || t("footer_copyright"))}</p>
@@ -522,6 +518,16 @@ const renderFooter = () => `
 const renderWhatsAppFloat = () => `<div class="whatsapp-float-wrap">
     ${renderWhatsAppLink({ className: "whatsapp-float", label: t("whatsapp_floating_label"), location: "floating_icon", iconOnly: true })}
   </div>`;
+
+const renderPermitQrBadge = () => {
+  const qrPermit = project.footer?.qrPermit;
+  if (!qrPermit?.image) return "";
+
+  return `<a class="permit-qr-badge" href="${escapeHtml(qrPermit.image)}" target="_blank" rel="noopener" aria-label="${escapeHtml(qrPermit.label || "Regulatory QR")}">
+    <img src="${escapeHtml(withAssetVersion(qrPermit.image))}" alt="${escapeHtml(qrPermit.alt || "Regulatory QR code")}" loading="lazy" decoding="async">
+    <span>${escapeHtml(qrPermit.label || "Regulatory QR")}</span>
+  </a>`;
+};
 
 const renderWhatsAppModal = () => `
   <div class="whatsapp-modal" data-whatsapp-modal hidden aria-hidden="true">
@@ -1302,6 +1308,7 @@ ${renderNav()}
   </main>
   ${renderFooter()}
   ${renderWhatsAppFloat()}
+  ${renderPermitQrBadge()}
   <div class="mobile-contact-bar">
     <a href="tel:${escapeHtml(company.phoneHref)}">${escapeHtml(t("mobile_call"))}</a>
     ${renderWhatsAppLink({ label: t("mobile_whatsapp"), location: "mobile_contact_bar" })}
@@ -1404,6 +1411,7 @@ ${renderNav()}
     </section>
   </main>
   ${renderFooter()}
+  ${renderPermitQrBadge()}
   ${renderThankYouTracking()}
 </body>
 </html>`;
