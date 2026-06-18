@@ -16,7 +16,7 @@ const sharedProject = {
   homeHref: "/",
   assetVersion: "20260618-arancia-fixed-qr-badge",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
-  whatsappWebhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/4brjlen/",
+  whatsappWebhookUrl: "",
   blacklistCheckUrl:
     "https://script.google.com/a/macros/oaklynrealty.ae/s/AKfycbxlrJjr1Up2ucBrAtOzkHA7gwITMLJEMAtPiAcmge1MkyIzsILTqTE7D3HK92rnuml2/exec?phone_number=%2B971501396674&email=mounir@oaklynrealty.ae&blacklisted=TRUE",
   blacklistTimeoutMs: 8000,

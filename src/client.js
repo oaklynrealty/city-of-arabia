@@ -2280,39 +2280,6 @@
               utmData
             )
           );
-          if (!window.__oaklynFormConversionTracked) {
-            window.__oaklynFormConversionTracked = true;
-            pushDataLayerEvent(
-              Object.assign(
-                {
-                  event: "lead_conversion_thank_you",
-                  conversion_type: "form",
-                  project: config.project_name,
-                  project_name: config.project_name,
-                  project_slug: config.project_slug,
-                  source_page: config.source_page,
-                  landing_page_url: config.landing_page_url,
-                  thank_you_type: "inline",
-                  page_title: document.title,
-                  page_location: window.location.href,
-                  page_path: window.location.pathname,
-                  lead_id: leadId,
-                  event_id: leadId,
-                  preferred_unit: formUnit,
-                  preferred_project: formUnit,
-                  property_type: formInquiry,
-                  inquiry_type: formInquiry,
-                  comments: formComments,
-                  inquiry_message: formComments,
-                  blacklist_status: "clear",
-                  webhook_status: "success"
-                },
-                buildLeadMatchingTrackingFields(leadMatchData),
-                clickIds,
-                utmData
-              )
-            );
-          }
           writeLeadSuccessState(leadId);
         });
     });
