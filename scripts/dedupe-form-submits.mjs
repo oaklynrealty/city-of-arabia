@@ -304,6 +304,7 @@ ${helperBlock}`,
   }
 
   const modernNeedle = `    const formInquiry = fields.propertyType.input.value.trim();
+    const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
     const blockedLead = isBlacklisted(formPhone);
 `;
   const legacyNeedle = `    const emailNormalized = normalizeEmailValue(fields.email.input.value);
@@ -314,6 +315,7 @@ ${helperBlock}`,
     output = output.replace(
       modernNeedle,
       `    const formInquiry = fields.propertyType.input.value.trim();
+    const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
 ${duplicateGuard("formPhone", "formEmail")}    const blockedLead = isBlacklisted(formPhone);
 `
     );
@@ -340,12 +342,12 @@ ${duplicateGuard("phoneFull", "emailNormalized")}    if (leadIdInput) leadIdInpu
     `          buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: "",
+          message: formComments,
           gdpr_consent:`,
     `          buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: "",
+          message: formComments,
           form_submission_key: formSubmissionKey,
           dedupe_window_minutes: Math.round(FORM_DEDUPE_WINDOW_MS / 60000),
           gdpr_consent:`
@@ -435,7 +437,7 @@ function patchHtml(source) {
   const placeholder = isArabic ? "+ مفتاح الدولة" : "+ country code";
 
   return source
-    .replace(/(<input id="landing_phone_country"[^>]*type="hidden"[^>]*value=")[^"]*(")/g, "$1$2")
+    .replace(/(<input\b(?=[^>]*data-country-picker-input)[^>]*value=")[^"]*(")/g, "$1$2")
     .replace(/(<span class="country-picker-flag" data-country-picker-flag>)[\s\S]*?(<\/span>)/g, "$1$2")
     .replace(/(<span class="country-picker-label" data-country-picker-label>)[\s\S]*?(<\/span>)/g, `$1${placeholder}$2`)
     .replace(/(<span class="country-picker-code" data-country-picker-code>)[\s\S]*?(<\/span>)/g, "$1$2")

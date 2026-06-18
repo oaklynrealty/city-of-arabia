@@ -1399,6 +1399,13 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
       }
     },
+    comments: {
+      input: document.getElementById("landing_comments"),
+      wrap: document.getElementById("commentsField"),
+      test: function (value) {
+        return value.trim().length >= 3;
+      }
+    },
     project: {
       input: document.getElementById("landing_preferred_project"),
       wrap: document.getElementById("projectField"),
@@ -1455,6 +1462,148 @@
       if (formError) formError.classList.remove("is-visible");
     });
   });
+
+  const bottomLeadForm = document.querySelector("[data-bottom-lead-form]");
+  const bottomLeadFormError = document.getElementById("bottomFormError");
+  const bottomSubmitBtn = document.getElementById("bottomSubmitBtn");
+  const bottomSubmitLabel = bottomSubmitBtn ? bottomSubmitBtn.textContent : "Submit";
+  const bottomPhoneCountryInput = document.getElementById("bottom_phone_country");
+  const bottomFields = {
+    name: {
+      input: document.getElementById("bottom_full_name"),
+      wrap: document.getElementById("bottomNameField"),
+      test: function (value) {
+        return value.trim().length >= 2;
+      }
+    },
+    phone: {
+      input: document.getElementById("bottom_phone"),
+      wrap: document.getElementById("bottomPhoneField"),
+      test: function () {
+        return true;
+      }
+    },
+    email: {
+      input: document.getElementById("bottom_email"),
+      wrap: document.getElementById("bottomEmailField"),
+      test: function (value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+      }
+    },
+    comments: {
+      input: document.getElementById("bottom_comments"),
+      wrap: document.getElementById("bottomCommentsField"),
+      test: function (value) {
+        return value.trim().length >= 3;
+      }
+    }
+  };
+
+  function setBottomError(field, hasError) {
+    if (!field || !field.wrap) return;
+    field.wrap.classList.toggle("has-error", hasError);
+    if (field.input) field.input.setAttribute("aria-invalid", hasError ? "true" : "false");
+  }
+
+  function clearBottomFormError() {
+    if (bottomLeadFormError) bottomLeadFormError.classList.remove("is-visible");
+  }
+
+  function focusBottomFieldError(field) {
+    if (field && field.input && typeof field.input.focus === "function") {
+      field.input.focus();
+    }
+  }
+
+  function fillMainFormFromBottom(validatedPhone) {
+    const bottomName = bottomFields.name.input.value.trim();
+    const bottomEmail = normalizeEmailValue(bottomFields.email.input.value);
+    const bottomComments = bottomFields.comments.input.value.trim();
+
+    if (splitName) {
+      const nameParts = bottomName.split(/\s+/);
+      if (fields.firstName && fields.firstName.input) fields.firstName.input.value = nameParts.shift() || bottomName;
+      if (fields.lastName && fields.lastName.input) fields.lastName.input.value = nameParts.join(" ") || bottomName;
+    } else if (fields.name && fields.name.input) {
+      fields.name.input.value = bottomName;
+    }
+
+    if (fields.phone && fields.phone.input) fields.phone.input.value = validatedPhone.phoneLocal;
+    syncCountryPickerByInput(phoneCountryInput, validatedPhone.countryCode);
+    if (fields.email && fields.email.input) fields.email.input.value = bottomEmail;
+    if (fields.comments && fields.comments.input) fields.comments.input.value = bottomComments;
+  }
+
+  if (bottomLeadForm) {
+    Object.keys(bottomFields).forEach(function (key) {
+      const field = bottomFields[key];
+      if (!field.input) return;
+      field.input.addEventListener("input", function () {
+        if (key === "phone") {
+          field.input.value = field.input.value.replace(/[^\d\s\-()]/g, "");
+        }
+        setBottomError(field, false);
+        clearBottomFormError();
+      });
+      field.input.addEventListener("change", function () {
+        setBottomError(field, false);
+        clearBottomFormError();
+      });
+    });
+
+    bottomLeadForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      clearBottomFormError();
+
+      let valid = true;
+      let firstInvalidField = null;
+      let validatedBottomPhone = null;
+
+      Object.keys(bottomFields).forEach(function (key) {
+        const field = bottomFields[key];
+        const inputValue = field.input ? field.input.value || "" : "";
+        const isValid =
+          key === "phone"
+            ? Boolean(
+                (validatedBottomPhone = buildValidatedPhoneNumber(
+                  inputValue,
+                  bottomPhoneCountryInput ? bottomPhoneCountryInput.value : "",
+                  allowedPhoneCountryCodes
+                )).valid
+              )
+            : field.input && field.test(inputValue);
+
+        setBottomError(field, !isValid);
+        if (!isValid) {
+          valid = false;
+          if (!firstInvalidField) firstInvalidField = field;
+        }
+      });
+
+      if (!valid) {
+        focusBottomFieldError(firstInvalidField);
+        return;
+      }
+
+      fillMainFormFromBottom(validatedBottomPhone);
+      Object.keys(fields).forEach(function (key) {
+        setError(fields[key], false);
+      });
+      if (bottomSubmitBtn) {
+        bottomSubmitBtn.disabled = true;
+        bottomSubmitBtn.textContent = "Submitting...";
+      }
+
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+      window.setTimeout(function () {
+        if (!bottomSubmitBtn) return;
+        if (success && success.classList.contains("is-visible")) return;
+        bottomSubmitBtn.disabled = false;
+        bottomSubmitBtn.textContent = bottomSubmitLabel;
+      }, 3500);
+    });
+  }
 
   const whatsappCtas = Array.from(document.querySelectorAll("[data-whatsapp-cta]"));
   const whatsappModal = document.querySelector("[data-whatsapp-modal]");
@@ -1885,6 +2034,7 @@
     const formEmail = normalizeEmailValue(fields.email.input.value);
     const formUnit = fields.project.input.value.trim();
     const formInquiry = fields.propertyType.input.value.trim();
+    const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
     const blockedLead = isBlacklisted(formPhone);
     const blacklistPromise = (blockedLead
       ? Promise.resolve({
@@ -1974,7 +2124,9 @@
           phone_country_code: phoneCountryCode,
           email: formEmail,
           unit: formUnit,
-          inquiry: formInquiry,
+          inquiry: formComments || formInquiry,
+          comments: formComments,
+          inquiry_message: formComments,
           preferred_project: formUnit,
           preferred_unit: formUnit,
           property_type: formInquiry,
@@ -2010,7 +2162,7 @@
           buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: "",
+          message: formComments,
           gdpr_consent:
             "By submitting this form, you agree to be contacted by our property consultants regarding your inquiry."
         },
@@ -2090,7 +2242,9 @@
                 preferred_unit: formUnit,
                 preferred_project: formUnit,
                 property_type: formInquiry,
-                inquiry_type: formInquiry
+                inquiry_type: formInquiry,
+                comments: formComments,
+                inquiry_message: formComments
               },
               buildLeadMatchingTrackingFields(leadMatchData),
               clickIds,
@@ -2119,6 +2273,8 @@
                   preferred_project: formUnit,
                   property_type: formInquiry,
                   inquiry_type: formInquiry,
+                  comments: formComments,
+                  inquiry_message: formComments,
                   blacklist_status: "clear",
                   webhook_status: "success"
                 },

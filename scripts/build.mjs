@@ -33,11 +33,17 @@ const defaultUiText = {
   form_phone_error: "Please enter a valid international phone number.",
   form_email_error: "Please enter a valid email address.",
   form_select_error: "Please select an option.",
+  form_comments_placeholder: "Tell us what you would like to know.",
+  form_comments_error: "Please add a short comment or inquiry.",
   form_submit: "Request Project Information",
   form_submit_error: "We could not submit your enquiry. Please try again or contact Oaklyn Realty directly.",
   form_success_title: "Thank you",
   blocked_success_title: "Thank you",
   form_success_copy_prefix: "Your enquiry has been received. Oaklyn Realty will contact you regarding",
+  bottom_form_eyebrow: "Speak With Oaklyn Realty",
+  bottom_form_title: "Request Arancia Yards details",
+  bottom_form_text:
+    "Share your details and questions. Our consultants will follow up with current pricing, availability, and payment-plan guidance.",
   faq_eyebrow: "FAQ",
   faq_title: "Quick answers",
   trust_eyebrow: "Trust & Compliance",
@@ -841,6 +847,7 @@ const getFormLabels = () => ({
   email: "Email",
   project: "Preferred Project",
   propertyType: "Property Type",
+  comments: "Comments / Inquiry",
   ...(project.form.labels || {}),
 });
 
@@ -887,6 +894,11 @@ const renderLeadFormPanel = (formLabels) => `
                 <input id="landing_email" name="email" type="email" autocomplete="email" placeholder="${escapeHtml("name@email.com")}" required>
                 <div class="field-error">${escapeHtml(t("form_email_error"))}</div>
               </div>
+              <div class="field is-comments" id="commentsField">
+                <label for="landing_comments">${escapeHtml(formLabels.comments)}</label>
+                <textarea id="landing_comments" name="comments" rows="3" maxlength="700" placeholder="${escapeHtml(t("form_comments_placeholder"))}" required></textarea>
+                <div class="field-error">${escapeHtml(t("form_comments_error"))}</div>
+              </div>
               <div class="field payload-hidden" id="projectField" hidden>
                 <label for="landing_preferred_project">${escapeHtml(formLabels.project)}</label>
                 <input id="landing_preferred_project" name="preferred_project" type="hidden" value="${escapeHtml(project.form.defaultPreferredProject || "General Availability")}">
@@ -916,6 +928,52 @@ const renderLeadFormPanel = (formLabels) => `
             <p class="section-copy">${renderBrandText(project.form.successText || `${t("form_success_copy_prefix")} ${project.name}.`)}</p>
           </div>
         </aside>`;
+
+const renderBottomLeadFormSection = (formLabels) => `
+    <section class="section bottom-lead-section" id="bottom-contact">
+      <div class="shell bottom-lead-panel">
+        <div class="bottom-lead-copy">
+          <span class="eyebrow">${escapeHtml(t("bottom_form_eyebrow"))}</span>
+          <h2 class="section-title">${escapeHtml(t("bottom_form_title"))}</h2>
+          <p class="section-copy">${renderBrandText(t("bottom_form_text"))}</p>
+        </div>
+        <form class="bottom-lead-form" data-bottom-lead-form novalidate>
+          <div class="field-grid">
+            <div class="field" id="bottomNameField">
+              <label for="bottom_full_name">${escapeHtml(formLabels.name)}</label>
+              <input id="bottom_full_name" type="text" autocomplete="name" placeholder="${escapeHtml("John Doe")}" required>
+              <div class="field-error">${escapeHtml(t("validation_name"))}</div>
+            </div>
+            <div class="field is-phone" id="bottomPhoneField">
+              <label for="bottom_phone">${escapeHtml(formLabels.phone)}</label>
+              <div class="phone-input-row">
+                ${renderPhoneCountryPicker({
+                  inputId: "bottom_phone_country",
+                  inputName: "",
+                  pickerKey: "bottom",
+                  searchId: "bottom_phone_country_search",
+                })}
+                <input id="bottom_phone" type="tel" inputmode="tel" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="20" placeholder="${escapeHtml(t("form_phone_placeholder"))}" required>
+              </div>
+              <div class="field-error">${escapeHtml(t("form_phone_error"))}</div>
+            </div>
+            <div class="field" id="bottomEmailField">
+              <label for="bottom_email">${escapeHtml(formLabels.email)}</label>
+              <input id="bottom_email" type="email" autocomplete="email" placeholder="${escapeHtml("name@email.com")}" required>
+              <div class="field-error">${escapeHtml(t("form_email_error"))}</div>
+            </div>
+            <div class="field is-comments" id="bottomCommentsField">
+              <label for="bottom_comments">${escapeHtml(formLabels.comments)}</label>
+              <textarea id="bottom_comments" rows="3" maxlength="700" placeholder="${escapeHtml(t("form_comments_placeholder"))}" required></textarea>
+              <div class="field-error">${escapeHtml(t("form_comments_error"))}</div>
+            </div>
+          </div>
+          <button id="bottomSubmitBtn" class="btn btn-primary btn-submit" type="submit">${escapeHtml(t("form_submit"))}</button>
+          <p class="disclaimer">${renderBrandText(project.form.consent)}</p>
+          <div id="bottomFormError" class="form-error">${renderBrandText(t("form_submit_error"))}</div>
+        </form>
+      </div>
+    </section>`;
 
 const renderAbout = () => {
   if (!project.about) return "";
@@ -1236,6 +1294,7 @@ ${renderNav()}
 
     ${renderAboutUsSection()}
     ${renderTrustFaqSection()}
+    ${renderBottomLeadFormSection(formLabels)}
   </main>
   ${renderFooter()}
   ${renderWhatsAppFloat()}

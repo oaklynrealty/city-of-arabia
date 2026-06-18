@@ -61,7 +61,9 @@ for (const term of [
   "lead_first_name",
   "lead_last_name",
   "meta_advanced_matching",
-  "form_submission_confirmed"
+  "form_submission_confirmed",
+  "comments",
+  "inquiry_message"
 ]) {
   assert(clientJs.includes(term), `client.js: missing confirmed Lead advanced matching term ${term}`);
 }
@@ -117,6 +119,7 @@ const requiredVisibleFields = [
   'name="phone"',
   'name="phone_country_code"',
   'name="email"',
+  'name="comments"',
   'name="preferred_project"',
   'name="property_type"',
 ];
@@ -185,6 +188,10 @@ for (const file of landingFiles) {
   assert(!html.includes("whatsapp_progress"), `${file}: should not include unused WhatsApp progress config`);
   assert(html.includes(GTM_CONTAINER_ID), `${file}: missing GTM container`);
   assert(html.includes('name="full_name"'), `${file}: missing full name field`);
+  assert(html.includes('id="landing_comments"'), `${file}: missing main comments field`);
+  assert(html.includes("data-bottom-lead-form"), `${file}: missing bottom lead form`);
+  assert(html.includes('id="bottom_phone_country"'), `${file}: missing bottom country code field`);
+  assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
 
   for (const field of requiredVisibleFields) {
     assert(html.includes(field), `${file}: missing compliant form field ${field}`);
@@ -212,6 +219,12 @@ for (const file of landingFiles) {
   assert(html.includes('"language_switcher_enabled": false'), `${file}: language switcher should be disabled`);
   validateJsonLd(html, file);
 }
+
+assert(clientJs.includes("bottomLeadForm"), "client.js: missing bottom lead form controller");
+assert(clientJs.includes("bottom_phone_country"), "client.js: missing bottom country-code validation");
+assert(clientJs.includes("buildValidatedPhoneNumber"), "client.js: missing phone validation function");
+assert(clientJs.includes("isSequentialDigits"), "client.js: missing fake sequential phone blocker");
+assert(clientJs.includes("PHONE_LENGTH_RULES_BY_DIAL_CODE"), "client.js: missing country-specific phone rules");
 
 const englishLandingHtml = await readFile(path.join(distDir, `${englishInternalRoutePath}/index.html`), "utf8");
 assert(englishLandingHtml.includes(project.name), "English internal route: missing project name");
