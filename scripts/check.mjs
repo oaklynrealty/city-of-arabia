@@ -52,6 +52,20 @@ const stylesCss = await readFile(path.join(distDir, "styles.css"), "utf8");
 const genericConversionPushes = clientJs.match(/event:\s*"conversion"/g) || [];
 assert(genericConversionPushes.length === 0, "client.js: generic conversion event should not be used for ad-platform conversions");
 assert(!clientJs.includes('window.dataLayer.push({ event: "conversion" })'), "client.js: bare conversion push should not exist");
+
+for (const term of [
+  'event: "lead_success"',
+  'conversion_action: "form_submission"',
+  "lead_email",
+  "lead_phone",
+  "lead_first_name",
+  "lead_last_name",
+  "meta_advanced_matching",
+  "form_submission_confirmed"
+]) {
+  assert(clientJs.includes(term), `client.js: missing confirmed Lead advanced matching term ${term}`);
+}
+
 assert(!clientJs.includes('event: "phone_call_click"'), "client.js: call tracking should not be enabled");
 assert(!clientJs.includes("whatsappModalStatus"), "client.js: WhatsApp modal progress state should not exist");
 assert(!clientJs.includes("startWhatsAppProgressState"), "client.js: WhatsApp should use full-screen verification instead of modal progress");
@@ -189,7 +203,7 @@ for (const file of landingFiles) {
   }
 
   assert(html.includes('data-whatsapp-cta'), `${file}: missing WhatsApp CTA`);
-  assert(!html.includes('data-whatsapp-modal'), `${file}: WhatsApp modal should not be rendered);
+  assert(!html.includes('data-whatsapp-modal'), `${file}: WhatsApp modal should not be rendered`);
   assert(html.includes('name="fbclid"'), `${file}: missing Meta click ID hidden field`);
   assert(html.includes('name="ttclid"'), `${file}: missing TikTok click ID hidden field`);
   assert(html.includes('name="ScCid"'), `${file}: missing Snapchat click ID hidden field`);
