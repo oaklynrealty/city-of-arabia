@@ -225,6 +225,9 @@ for (const file of landingFiles) {
 
 assert(clientJs.includes("bottomLeadForm"), "client.js: missing bottom lead form controller");
 assert(clientJs.includes("bottom_phone_country"), "client.js: missing bottom country-code validation");
+assert(clientJs.includes("validateWebhookLeadPayload"), "client.js: missing final required lead payload validator before Zapier");
+assert(clientJs.includes("lead_webhook_blocked_empty_payload"), "client.js: missing blocked empty-payload tracking event");
+assert(clientJs.includes("Blocked empty lead payload"), "client.js: missing empty lead webhook blocker");
 assert(clientJs.includes("buildValidatedPhoneNumber"), "client.js: missing phone validation function");
 assert(clientJs.includes("isSequentialDigits"), "client.js: missing fake sequential phone blocker");
 assert(clientJs.includes("PHONE_LENGTH_RULES_BY_DIAL_CODE"), "client.js: missing country-specific phone rules");
