@@ -4566,6 +4566,8 @@ footer.section {
   text-decoration: none;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
+  user-select: none;
 }
 
 .permit-qr-badge img {

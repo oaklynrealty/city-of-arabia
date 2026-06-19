@@ -523,10 +523,10 @@ const renderPermitQrBadge = () => {
   const qrPermit = project.footer?.qrPermit;
   if (!qrPermit?.image) return "";
 
-  return `<a class="permit-qr-badge" href="${escapeHtml(qrPermit.image)}" target="_blank" rel="noopener" aria-label="${escapeHtml(qrPermit.label || "Regulatory QR")}">
+  return `<div class="permit-qr-badge" role="img" aria-label="${escapeHtml(qrPermit.label || "Regulatory QR")}">
     <img src="${escapeHtml(withAssetVersion(qrPermit.image))}" alt="${escapeHtml(qrPermit.alt || "Regulatory QR code")}" loading="lazy" decoding="async">
     <span>${escapeHtml(qrPermit.label || "Regulatory QR")}</span>
-  </a>`;
+  </div>`;
 };
 
 const renderWhatsAppModal = () => `

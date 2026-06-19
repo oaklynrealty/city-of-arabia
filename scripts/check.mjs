@@ -194,6 +194,7 @@ for (const file of landingFiles) {
   assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
   assert(html.includes("arancia-yards-regulatory-qr.jpeg"), `${file}: missing regulatory QR image`);
   assert(html.includes("permit-qr-badge"), `${file}: missing fixed regulatory QR badge`);
+  assert(!html.includes('<a class="permit-qr-badge"'), `${file}: regulatory QR badge should not be clickable`);
 
   for (const field of requiredVisibleFields) {
     assert(html.includes(field), `${file}: missing compliant form field ${field}`);
@@ -230,6 +231,7 @@ assert(clientJs.includes("Blocked empty lead payload"), "client.js: missing empt
 assert(clientJs.includes("buildValidatedPhoneNumber"), "client.js: missing phone validation function");
 assert(clientJs.includes("isSequentialDigits"), "client.js: missing fake sequential phone blocker");
 assert(clientJs.includes("PHONE_LENGTH_RULES_BY_DIAL_CODE"), "client.js: missing country-specific phone rules");
+assert(stylesCss.includes("pointer-events: none;"), "styles.css: regulatory QR badge should not capture clicks");
 
 const englishLandingHtml = await readFile(path.join(distDir, `${englishInternalRoutePath}/index.html`), "utf8");
 assert(englishLandingHtml.includes(project.name), "English internal route: missing project name");
