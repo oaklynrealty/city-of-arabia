@@ -80,7 +80,7 @@ const duplicateGuard = (phoneExpression, emailExpression) => `    const formSubm
         form_submission_key: formSubmissionKey,
         dedupe_window_minutes: Math.round(FORM_DEDUPE_WINDOW_MS / 60000)
       });
-      showBlockedSuccess(config.blacklist_block_message || "Thank you. Your inquiry has already been received.");
+      showDuplicateSuccess(config.duplicate_submission_message || "Thank you. Your inquiry has already been received.");
       return;
     }
 
@@ -305,7 +305,8 @@ ${helperBlock}`,
 
   const modernNeedle = `    const formInquiry = fields.propertyType.input.value.trim();
     const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
-    const blockedLead = isBlacklisted(formPhone);
+
+    if (leadIdInput) leadIdInput.value = leadId;
 `;
   const legacyNeedle = `    const emailNormalized = normalizeEmailValue(fields.email.input.value);
     if (leadIdInput) leadIdInput.value = leadId;
@@ -316,7 +317,8 @@ ${helperBlock}`,
       modernNeedle,
       `    const formInquiry = fields.propertyType.input.value.trim();
     const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
-${duplicateGuard("formPhone", "formEmail")}    const blockedLead = isBlacklisted(formPhone);
+
+${duplicateGuard("formPhone", "formEmail")}    if (leadIdInput) leadIdInput.value = leadId;
 `
     );
   } else if (output.includes(legacyNeedle)) {
@@ -342,86 +344,35 @@ ${duplicateGuard("phoneFull", "emailNormalized")}    if (leadIdInput) leadIdInpu
     `          buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: formComments,
+          message: leadCommentText,
+          crm_comment: crmComment,
           gdpr_consent:`,
     `          buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: formComments,
+          message: leadCommentText,
+          crm_comment: crmComment,
           form_submission_key: formSubmissionKey,
           dedupe_window_minutes: Math.round(FORM_DEDUPE_WINDOW_MS / 60000),
           gdpr_consent:`
   );
 
-  if (formBlock.includes(`blacklistOutcome`)) {
-    formBlock = formBlock
-      .replace(
-        `        console.error("[form] Blacklist check failed", blacklistOutcome.error);
+  formBlock = formBlock
+    .replace(
+      `          webhookSucceeded = true;
 `,
-        `        console.error("[form] Blacklist check failed", blacklistOutcome.error);
-        releaseFormSubmissionLock();
-        clearFormSubmissionState(formSubmissionKey);
-`
-      )
-      .replace(
-        `      if (blacklistResult && blacklistResult.blocked) {
-`,
-        `      if (blacklistResult && blacklistResult.blocked) {
-        releaseFormSubmissionLock();
-        clearFormSubmissionState(formSubmissionKey);
-`
-      )
-      .replace(
-        `          webhookSucceeded = true;
-`,
-        `          webhookSucceeded = true;
+      `          webhookSucceeded = true;
           writeFormSubmissionState(formSubmissionKey, leadId, "submitted");
 `
-      )
-      .replace(
-        `          console.error("Webhook submit error:", error);
+    )
+    .replace(
+      `          console.error("Webhook submit error:", error);
 `,
-        `          console.error("Webhook submit error:", error);
+      `          console.error("Webhook submit error:", error);
           releaseFormSubmissionLock();
           clearFormSubmissionState(formSubmissionKey);
 `
-      );
-  } else {
-    formBlock = formBlock
-      .replace(
-        `      if (blacklistResult.blocked) {
-`,
-        `      if (blacklistResult.blocked) {
-        releaseFormSubmissionLock();
-        clearFormSubmissionState(formSubmissionKey);
-`
-      )
-      .replace(
-        `      console.error("[blacklist] Check failed", error);
-`,
-        `      console.error("[blacklist] Check failed", error);
-      releaseFormSubmissionLock();
-      clearFormSubmissionState(formSubmissionKey);
-`
-      )
-      .replace(
-        `      await response.text();
-
-      form.style.display = "none";`,
-        `      await response.text();
-      writeFormSubmissionState(formSubmissionKey, leadId, "submitted");
-
-      form.style.display = "none";`
-      )
-      .replace(
-        `      console.error("Webhook submit error:", error);
-`,
-        `      console.error("Webhook submit error:", error);
-      releaseFormSubmissionLock();
-      clearFormSubmissionState(formSubmissionKey);
-`
-      );
-  }
+    );
 
   output = beforeForm + formBlock;
 

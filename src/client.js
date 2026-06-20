@@ -762,25 +762,8 @@
     return "+" + cleaned.replace(/\D/g, "");
   }
 
-  const BLACKLIST = [];
   const verifiedWhatsAppUrl =
     "https://wa.me/971505886769?text=Hello%20Oaklyn%20Realty%2C%20I%20am%20interested%20in%20Arancia%20Yards%20by%20BEYOND";
-
-  function normalizeBlacklistPhone(p) {
-    let value = String(p || "").replace(/[\s\-()]/g, "");
-    if (value.startsWith("00971")) value = value.slice(5);
-    else if (value.startsWith("+971")) value = value.slice(4);
-    else if (value.startsWith("971")) value = value.slice(3);
-    if (value.startsWith("0")) value = value.slice(1);
-    return value;
-  }
-
-  function isBlacklisted(phone) {
-    const normalized = normalizeBlacklistPhone(phone);
-    return BLACKLIST.some(function (blockedPhone) {
-      return normalizeBlacklistPhone(blockedPhone) === normalized;
-    });
-  }
 
   function resetVerificationOverlay() {
     const overlay = document.getElementById("verify-overlay");
@@ -960,7 +943,6 @@
   window.showVerification = showVerification;
   window.handleWhatsApp = handleWhatsApp;
   window.handleCall = handleCall;
-  window.isBlacklisted = isBlacklisted;
 
   function normalizeDialCode(value) {
     const cleaned = String(value || "").replace(/[^\d+]/g, "");
@@ -1199,58 +1181,6 @@
     return /^[a-z]{2,24}$/i.test(topLevelDomain);
   }
 
-  function normalizeBlacklistUrl(value) {
-    return String(value || "").trim();
-  }
-
-  function encodeBlacklistPhoneQueryValue(value) {
-    const normalized = String(value || "").trim();
-    if (!normalized) return "";
-    if (normalized.charAt(0) === "+") {
-      return "%2B+" + normalized.slice(1);
-    }
-    return encodeURIComponent(normalized);
-  }
-
-  function buildBlacklistRequestUrl(baseUrl, lead) {
-    const [path, query = ""] = String(baseUrl || "").split("?");
-    const pairs = query ? query.split("&").filter(Boolean) : [];
-    const nextPairs = [];
-    let hasPhone = false;
-    let hasEmail = false;
-
-    pairs.forEach(function (pair) {
-      const equalsIndex = pair.indexOf("=");
-      const rawKey = equalsIndex >= 0 ? pair.slice(0, equalsIndex) : pair;
-      const key = decodeURIComponent(rawKey || "").trim();
-
-      if (key === "phone_number") {
-        hasPhone = true;
-        nextPairs.push("phone_number=" + encodeBlacklistPhoneQueryValue(lead.phone_number || ""));
-        return;
-      }
-
-      if (key === "email") {
-        hasEmail = true;
-        nextPairs.push("email=" + String(lead.email || "").trim());
-        return;
-      }
-
-      nextPairs.push(pair);
-    });
-
-    if (!hasPhone) {
-      nextPairs.unshift("phone_number=" + encodeBlacklistPhoneQueryValue(lead.phone_number || ""));
-    }
-
-    if (!hasEmail) {
-      const insertionIndex = hasPhone ? 1 : 0;
-      nextPairs.splice(insertionIndex, 0, "email=" + String(lead.email || "").trim());
-    }
-
-    return path + (nextPairs.length ? "?" + nextPairs.join("&") : "");
-  }
-
   function looksLikeHtmlDocument(value) {
     return /^\s*<(?:!doctype html|html)\b/i.test(String(value || ""));
   }
@@ -1485,124 +1415,14 @@
     }
   }
 
-  function showBlockedSuccess(message) {
+  function showDuplicateSuccess(message) {
     const successTitle = success ? success.querySelector("h3") : null;
     const successCopy = success ? success.querySelector(".section-copy") : null;
 
     form.style.display = "none";
-    if (successTitle) successTitle.textContent = config.blacklist_block_title || "Thank you";
+    if (successTitle) successTitle.textContent = "Thank you";
     if (successCopy) successCopy.textContent = message;
     if (success) success.classList.add("is-visible");
-  }
-
-  async function checkBlacklistStatus(lead) {
-    const originalBlacklistUrl = String(config.blacklist_check_url || "").trim();
-    const normalizedBlacklistUrl = normalizeBlacklistUrl(originalBlacklistUrl);
-    if (!normalizedBlacklistUrl) {
-      throw new Error("Blacklist check URL is not configured.");
-    }
-
-    const requestPayload = {
-      phone_number: lead.phone_number || "",
-      email: lead.email || ""
-    };
-    const blacklistUrl = buildBlacklistRequestUrl(normalizedBlacklistUrl, requestPayload);
-
-    const timeoutMs = Number(config.blacklist_timeout_ms) || 8000;
-    const controller = typeof window.AbortController === "function" ? new window.AbortController() : null;
-    const timeoutId = controller
-      ? window.setTimeout(function () {
-          controller.abort();
-        }, timeoutMs)
-      : null;
-
-    console.log("Checking blacklist...");
-    console.info("[blacklist] Checking lead against sheet", {
-      url: blacklistUrl,
-      phone_number: requestPayload.phone_number,
-      email: requestPayload.email
-    });
-
-    try {
-      const response = await fetch(blacklistUrl, {
-        method: "GET",
-        cache: "no-store",
-        redirect: "follow",
-        headers: {
-          Accept: "application/json"
-        },
-        signal: controller ? controller.signal : undefined
-      });
-
-      const responseText = await response.text();
-      const responseContentType = response.headers.get("content-type") || "";
-      const responseUrl = response.url || blacklistUrl;
-      let responseJson;
-
-      if (
-        responseUrl.includes("accounts.google.com") ||
-        responseText.includes("ServiceLogin") ||
-        looksLikeHtmlDocument(responseText) ||
-        responseContentType.includes("text/html")
-      ) {
-        throw new Error("Blacklist API is not publicly accessible.");
-      }
-
-      try {
-        responseJson = JSON.parse(responseText);
-      } catch (parseError) {
-        throw new Error("Invalid blacklist response.");
-      }
-
-      console.info("[blacklist] Response received", responseJson);
-
-      if (!response.ok) {
-        throw new Error("Blacklist check failed with status " + response.status);
-      }
-
-      if (!responseJson || typeof responseJson.blocked !== "boolean") {
-        throw new Error("Blacklist response missing blocked flag.");
-      }
-
-      return responseJson;
-    } catch (error) {
-      if (error && error.name === "AbortError") {
-        throw new Error("Blacklist check timed out.");
-      }
-      throw error;
-    } finally {
-      if (timeoutId) window.clearTimeout(timeoutId);
-    }
-  }
-
-  async function checkBlacklistStatusWithSimilarPhone(lead) {
-    const phoneCandidates = Array.isArray(lead.phone_candidates) ? lead.phone_candidates.filter(Boolean) : [];
-    const dedupedCandidates = Array.from(new Set(phoneCandidates.length ? phoneCandidates : [lead.phone_number || ""])).filter(Boolean);
-
-    if (!dedupedCandidates.length) {
-      return checkBlacklistStatus(lead);
-    }
-
-    for (let index = 0; index < dedupedCandidates.length; index += 1) {
-      const phoneCandidate = dedupedCandidates[index];
-      const result = await checkBlacklistStatus({
-        phone_number: phoneCandidate,
-        email: lead.email || ""
-      });
-
-      if (result && result.blocked) {
-        return Object.assign({}, result, {
-          matched_phone_number: phoneCandidate,
-          checked_phone_numbers: dedupedCandidates
-        });
-      }
-    }
-
-    return {
-      blocked: false,
-      matched_phone_number: "",
-      checked_phone_numbers: dedupedCandidates
-    };
   }
 
   const splitName = Boolean(config.split_name);
@@ -2016,8 +1836,7 @@
       pushDataLayerEvent(
         Object.assign(
           {
-            event: "whatsapp_cta_blocked",
-            blacklist_status: "validation_required"
+            event: "whatsapp_cta_validation_error"
           },
           buildWhatsAppTrackingPayload(activeWhatsAppLink)
         )
@@ -2032,11 +1851,6 @@
     const destinationUrl = String(
       linkForTracking.dataset.whatsappDestination || linkForTracking.href || ""
     ).trim();
-    const blacklistPromise = checkBlacklistStatusWithSimilarPhone({
-      phone_number: validatedPhone.e164,
-      email: fields.email && fields.email.input ? normalizeEmailValue(fields.email.input.value) : "",
-      phone_candidates: buildSimilarPhoneCandidates(validatedPhone)
-    });
 
     if (whatsappModalContinue) {
       whatsappModalContinue.disabled = true;
@@ -2046,32 +1860,6 @@
 
     showVerification(async function () {
       try {
-        const blacklistResult = await blacklistPromise;
-
-        if (blacklistResult.blocked) {
-          openWhatsAppModal(linkForTracking);
-          if (whatsappModalCountryInput) whatsappModalCountryInput.value = validatedPhone.countryCode;
-          if (whatsappModalPhoneInput) whatsappModalPhoneInput.value = validatedPhone.phoneLocal;
-          if (whatsappModalBlocked) whatsappModalBlocked.classList.add("is-visible");
-          pushDataLayerEvent(
-            Object.assign(
-              {
-                event: "whatsapp_cta_blocked",
-                blacklist_status: "blocked",
-                block_reason: "blacklist",
-                matched_phone_number: blacklistResult.matched_phone_number || ""
-              },
-              buildWhatsAppTrackingPayload(linkForTracking)
-            )
-          );
-
-          if (whatsappModalContinue) {
-            whatsappModalContinue.disabled = false;
-            whatsappModalContinue.textContent = defaultWhatsAppModalLabel;
-          }
-          return;
-        }
-
         const whatsappLeadPayload = buildWhatsAppLeadPayload(validatedPhone, linkForTracking);
         const whatsappTrackingPayload = Object.assign(
           {
@@ -2091,8 +1879,7 @@
               Object.assign(
                 {
                   event: "whatsapp_webhook_success",
-                  webhook_status: "success",
-                  blacklist_status: "clear"
+                  webhook_status: "success"
                 },
                 whatsappTrackingPayload
               )
@@ -2105,7 +1892,6 @@
                 {
                   event: "whatsapp_webhook_error",
                   webhook_status: "error",
-                  blacklist_status: "clear",
                   error_message: error && error.message ? error.message : "unknown"
                 },
                 whatsappTrackingPayload
@@ -2116,8 +1902,7 @@
         pushDataLayerEvent(
           Object.assign(
             {
-              event: "whatsapp_cta_click",
-              blacklist_status: "clear"
+              event: "whatsapp_cta_click"
             },
             whatsappTrackingPayload
           )
@@ -2127,8 +1912,7 @@
           Object.assign(
             {
               event: "whatsapp_cta_conversion",
-              conversion_type: "whatsapp",
-              blacklist_status: "clear"
+              conversion_type: "whatsapp"
             },
             whatsappTrackingPayload
           )
@@ -2136,16 +1920,15 @@
 
         window.location.assign(destinationUrl);
       } catch (error) {
-        console.error("[whatsapp] Blacklist check failed", error);
+        console.error("[whatsapp] Verification failed", error);
         openWhatsAppModal(linkForTracking);
         if (whatsappModalCountryInput) whatsappModalCountryInput.value = validatedPhone.countryCode;
         if (whatsappModalPhoneInput) whatsappModalPhoneInput.value = validatedPhone.phoneLocal;
-        setWhatsAppModalError(config.blacklist_error_message || "Something went wrong. Please try again.");
+        setWhatsAppModalError("Something went wrong. Please try again.");
         pushDataLayerEvent(
           Object.assign(
             {
-              event: "whatsapp_cta_blacklist_error",
-              blacklist_status: "error"
+              event: "whatsapp_cta_verification_error"
             },
             buildWhatsAppTrackingPayload(linkForTracking)
           )
@@ -2257,26 +2040,6 @@
     const formUnit = fields.project.input.value.trim();
     const formInquiry = fields.propertyType.input.value.trim();
     const formComments = fields.comments && fields.comments.input ? fields.comments.input.value.trim() : "";
-    const blockedLead = isBlacklisted(formPhone);
-    const blacklistPromise = (blockedLead
-      ? Promise.resolve({
-          blocked: true,
-          matched_phone_number: formPhone,
-          checked_phone_numbers: [formPhone]
-        })
-      : checkBlacklistStatusWithSimilarPhone({
-          phone_number: formPhone,
-          email: formEmail,
-          phone_candidates: buildSimilarPhoneCandidates(validatedPhone)
-        })
-    ).then(
-      function (result) {
-        return { result: result };
-      },
-      function (error) {
-        return { error: error };
-      }
-    );
 
     if (leadIdInput) leadIdInput.value = leadId;
     if (submitBtn) {
@@ -2285,50 +2048,6 @@
     }
 
     showVerification(async function () {
-      let blacklistResult;
-
-      const blacklistOutcome = await blacklistPromise;
-
-      if (blacklistOutcome && blacklistOutcome.error) {
-        console.error("[form] Blacklist check failed", blacklistOutcome.error);
-        setFormErrorMessage(config.blacklist_error_message || "Something went wrong. Please try again.");
-        if (formError) formError.classList.add("is-visible");
-        pushDataLayerEvent({
-          event: "lead_blacklist_error",
-          project: config.project_name,
-          project_name: config.project_name,
-          project_slug: config.project_slug,
-          lead_id: leadId,
-          blacklist_status: "error"
-        });
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = defaultSubmitLabel;
-        }
-        return;
-      }
-
-      blacklistResult = blacklistOutcome ? blacklistOutcome.result : null;
-
-      if (blacklistResult && blacklistResult.blocked) {
-        pushDataLayerEvent({
-          event: "lead_blocked",
-          project: config.project_name,
-          project_name: config.project_name,
-          project_slug: config.project_slug,
-          lead_id: leadId,
-          blacklist_status: "blocked",
-          block_reason: "blacklist",
-          matched_phone_number: blacklistResult.matched_phone_number || ""
-        });
-        showBlockedSuccess(config.blacklist_block_message || "Thank you. Your inquiry has already been received.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = defaultSubmitLabel;
-        }
-        return;
-      }
-
       if (submitBtn) {
         submitBtn.textContent = "Submitting...";
       }
@@ -2514,7 +2233,6 @@
                 project_slug: config.project_slug,
                 lead_id: leadId,
                 event_id: leadId,
-                blacklist_status: "clear",
                 webhook_status: "success",
                 campaign_name: campaignName,
                 campaign_search_term: campaignSearchTerm,
@@ -2569,7 +2287,6 @@
                 event_id: leadId,
                 form_submission_confirmed: true,
                 form_submission_confirmed_text: "true",
-                blacklist_status: "clear",
                 webhook_status: "success",
                 preferred_unit: formUnit,
                 preferred_project: formUnit,

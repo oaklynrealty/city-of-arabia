@@ -193,11 +193,8 @@ const getClientConfig = (options = {}) => ({
   webhook_url: project.webhookUrl,
   whatsapp_tracking_link: getWhatsAppHref(),
   whatsapp_webhook_url: project.whatsappWebhookUrl || "",
-  blacklist_check_url: project.blacklistCheckUrl || "",
-  blacklist_timeout_ms: Number(project.blacklistTimeoutMs) || 8000,
-  blacklist_block_message: project.form.blacklistBlockedMessage || "Thank you. Your inquiry has already been received.",
-  blacklist_block_title: t("blocked_success_title", "Thank you"),
-  blacklist_error_message: project.form.blacklistErrorMessage || "Something went wrong. Please try again.",
+  duplicate_submission_message:
+    project.form.duplicateSubmissionMessage || "Thank you. Your inquiry has already been received.",
   verification_headlines: [
     t("verification_headline_1"),
     t("verification_headline_2"),
@@ -559,7 +556,7 @@ const renderWhatsAppModal = () => `
       <div id="whatsappModalError" class="form-error">${escapeHtml(t("whatsapp_error"))}</div>
       <div id="whatsappModalBlocked" class="form-success">
         <h3>${escapeHtml(t("blocked_success_title"))}</h3>
-        <p class="section-copy">${escapeHtml(project.form.blacklistBlockedMessage || "Thank you. Your inquiry has already been received.")}</p>
+        <p class="section-copy">${escapeHtml(project.form.duplicateSubmissionMessage || "Thank you. Your inquiry has already been received.")}</p>
       </div>
       <div class="whatsapp-modal-actions">
         <button class="btn btn-primary" type="button" id="whatsappModalContinue">${escapeHtml(t("whatsapp_continue"))}</button>

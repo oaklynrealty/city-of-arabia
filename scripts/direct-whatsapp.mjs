@@ -52,7 +52,6 @@ const directHandleWhatsApp = `  function handleWhatsApp(event) {
       {
         lead_id: leadId,
         event_id: leadId,
-        blacklist_status: "not_checked",
         verification_status: "skipped",
         google_ads_eligible: Boolean(googleClickId),
         google_click_id: googleClickId,

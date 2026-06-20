@@ -112,6 +112,11 @@ assert(clientJs.includes("isValidEmailValue"), "client.js: missing strict email 
 assert(clientJs.includes("BLOCKED_EMAIL_DOMAINS"), "client.js: missing disposable/test email domain blocker");
 assert(clientJs.includes("LANDING_PAGE_VARIANT"), "client.js: missing landing-page variant field");
 assert(clientJs.includes("lead_duplicate_suppressed"), "client.js: missing duplicate lead suppression");
+assert(!clientJs.includes("checkBlacklistStatus"), "client.js: blacklist checker should not exist");
+assert(!clientJs.includes("blacklist_check_url"), "client.js: blacklist config should not exist");
+assert(!clientJs.includes("lead_blacklist_error"), "client.js: blacklist error event should not exist");
+assert(!clientJs.includes("lead_blocked"), "client.js: blacklist blocked event should not exist");
+assert(!clientJs.includes("blacklist_status"), "client.js: blacklist tracking status should not exist");
 
 assert(!clientJs.includes('event: "phone_call_click"'), "client.js: call tracking should not be enabled");
 assert(!clientJs.includes("whatsappModalStatus"), "client.js: WhatsApp modal progress state should not exist");
@@ -138,8 +143,6 @@ const sharedTrackingTerms = [
   "utm_source",
   "utm_medium",
   "utm_campaign",
-  "lead_blocked",
-  "lead_blacklist_error",
   "dataLayer",
   "preferred_unit",
   "inquiry_type",

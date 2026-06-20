@@ -14,12 +14,9 @@ const sharedProject = {
   routePath: "/__oaklyn-lang/en",
   alternateThankYouPath: "/__oaklyn-lang/en-thank-you",
   homeHref: "/",
-  assetVersion: "20260620-arancia-regulatory-qr-update",
+  assetVersion: "20260620-arancia-direct-leads",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
   whatsappWebhookUrl: "",
-  blacklistCheckUrl:
-    "https://script.google.com/a/macros/oaklynrealty.ae/s/AKfycbxlrJjr1Up2ucBrAtOzkHA7gwITMLJEMAtPiAcmge1MkyIzsILTqTE7D3HK92rnuml2/exec?phone_number=%2B971501396674&email=mounir@oaklynrealty.ae&blacklisted=TRUE",
-  blacklistTimeoutMs: 8000,
   tracking: getTrackingConfig(),
   showMobileMenu: false,
   brand: {
@@ -266,10 +263,8 @@ const sharedProject = {
       "By submitting this form, you agree to be contacted by our property consultants regarding your inquiry.",
     sensitiveDataNotice:
       "We do not request sensitive personal information such as passport numbers, Emirates ID, salary information, nationality, religion, or health-related data through this form.",
-    blacklistBlockedMessage:
+    duplicateSubmissionMessage:
       "Thank you. Your inquiry has already been received.",
-    blacklistErrorMessage:
-      "Something went wrong. Please try again.",
     disclaimer:
       "All pricing, payment plans, availability, launch dates, and handover dates remain subject to developer confirmation.",
     successText:
