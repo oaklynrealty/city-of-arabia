@@ -30,7 +30,7 @@ const defaultUiText = {
   subject_to_confirmation: "Subject to developer confirmation",
   no_guaranteed_returns: "No guaranteed investment returns",
   form_phone_placeholder: "050 123 4567",
-  form_phone_error: "Please enter a valid international phone number.",
+  form_phone_error: "Please select a country code and enter a valid phone number.",
   form_email_error: "Please enter a valid email address.",
   form_select_error: "Please select an option.",
   form_comments_placeholder: "Tell us what you would like to know.",
@@ -88,6 +88,7 @@ const defaultUiText = {
   phone_search_sr_label: "Search country or code",
   phone_search_placeholder: "Type exact code or country",
   phone_search_empty: "No country found.",
+  phone_country_placeholder: "Select code",
   validation_name: "Please enter your name.",
   validation_first_name: "Please enter your first name.",
   validation_last_name: "Please enter your last name.",
@@ -777,9 +778,6 @@ const renderFaq = () => {
 const renderOptions = (items) =>
   items.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
 
-const getDefaultPhoneCountry = () =>
-  project.form.phoneCountries?.[0] || { flag: "🇦🇪", label: "United Arab Emirates", dialCode: "+971" };
-
 const renderPhoneCountryPicker = ({
   inputId = "landing_phone_country",
   inputName = "phone_country_code",
@@ -787,24 +785,25 @@ const renderPhoneCountryPicker = ({
   searchId = "landing_phone_country_search",
   labelledBy = "",
 } = {}) => {
-  const defaultCountry = getDefaultPhoneCountry();
+  const placeholder = t("phone_country_placeholder", "Select code");
   const inputNameAttribute = inputName ? ` name="${escapeHtml(inputName)}"` : "";
   const labelledByAttribute = labelledBy ? ` aria-labelledby="${escapeHtml(labelledBy)}"` : "";
 
-  return `<div class="country-picker" data-country-picker="${escapeHtml(pickerKey)}">
-      <input id="${escapeHtml(inputId)}"${inputNameAttribute} type="hidden" value="${escapeHtml(defaultCountry.dialCode)}" data-country-picker-input>
+  return `<div class="country-picker" data-country-picker="${escapeHtml(pickerKey)}" data-country-placeholder="${escapeHtml(placeholder)}">
+      <input id="${escapeHtml(inputId)}"${inputNameAttribute} type="hidden" value="" data-country-picker-input>
       <button
         class="country-picker-trigger"
         type="button"
         aria-haspopup="listbox"
         aria-expanded="false"
+        aria-label="${escapeHtml(placeholder)}"
         ${labelledByAttribute}
         data-country-picker-trigger
       >
         <span class="country-picker-current">
-          <span class="country-picker-flag" data-country-picker-flag>${escapeHtml(defaultCountry.flag)}</span>
-          <span class="country-picker-label" data-country-picker-label>${escapeHtml(defaultCountry.label)}</span>
-          <span class="country-picker-code" data-country-picker-code>${escapeHtml(defaultCountry.dialCode)}</span>
+          <span class="country-picker-flag" data-country-picker-flag></span>
+          <span class="country-picker-label" data-country-picker-label>${escapeHtml(placeholder)}</span>
+          <span class="country-picker-code" data-country-picker-code></span>
         </span>
         <span class="country-picker-chevron" aria-hidden="true">▾</span>
       </button>
@@ -824,11 +823,11 @@ const renderPhoneCountryPicker = ({
         <div class="country-picker-list" role="listbox" data-country-picker-list>
           ${project.form.phoneCountries
             .map(
-              (item, index) => `<button
-              class="country-picker-option${index === 0 ? " is-selected" : ""}"
+              (item) => `<button
+              class="country-picker-option"
               type="button"
               role="option"
-              aria-selected="${index === 0 ? "true" : "false"}"
+              aria-selected="false"
               data-country-option
               data-country-flag="${escapeHtml(item.flag)}"
               data-country-label="${escapeHtml(item.label)}"

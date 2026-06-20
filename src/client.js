@@ -946,7 +946,7 @@
 
   function normalizeDialCode(value) {
     const cleaned = String(value || "").replace(/[^\d+]/g, "");
-    if (!cleaned) return "+971";
+    if (!cleaned) return "";
     return cleaned.charAt(0) === "+" ? cleaned : "+" + cleaned.replace(/\D/g, "");
   }
 
@@ -1255,8 +1255,22 @@
     const countryPickerCode = countryPicker.querySelector("[data-country-picker-code]");
     const countryPickerEmpty = countryPicker.querySelector("[data-country-picker-empty]");
     const scopedCountryOptions = Array.from(countryPicker.querySelectorAll("[data-country-option]"));
+    const countryPickerPlaceholder = countryPicker.dataset.countryPlaceholder || "Select code";
 
     if (!countryInput || !countryPickerTrigger || !countryPickerPanel || !scopedCountryOptions.length) return;
+
+    const clearCountrySelection = function () {
+      countryInput.value = "";
+      countryPicker.classList.remove("has-selection");
+      if (countryPickerFlag) countryPickerFlag.textContent = "";
+      if (countryPickerLabel) countryPickerLabel.textContent = countryPickerPlaceholder;
+      if (countryPickerCode) countryPickerCode.textContent = "";
+      countryPickerTrigger.setAttribute("aria-label", countryPickerPlaceholder);
+      scopedCountryOptions.forEach(function (item) {
+        item.classList.remove("is-selected");
+        item.setAttribute("aria-selected", "false");
+      });
+    };
 
     const closeCountryPicker = function () {
       countryPicker.classList.remove("is-open");
@@ -1319,9 +1333,11 @@
       const nextCode = option.dataset.countryCode || "";
 
       countryInput.value = nextCode;
+      countryPicker.classList.add("has-selection");
       if (countryPickerFlag) countryPickerFlag.textContent = nextFlag;
       if (countryPickerLabel) countryPickerLabel.textContent = nextLabel;
       if (countryPickerCode) countryPickerCode.textContent = nextCode;
+      countryPickerTrigger.setAttribute("aria-label", nextLabel + " " + nextCode);
 
       scopedCountryOptions.forEach(function (item) {
         const active = item === option;
@@ -1333,6 +1349,10 @@
         countryPickerSearch.value = "";
       }
 
+      const pickerFieldWrap = countryPicker.closest(".field");
+      if (pickerFieldWrap) {
+        pickerFieldWrap.classList.remove("has-error");
+      }
       if (countryInput === phoneCountryInput) {
         const phoneFieldWrap = document.getElementById("phoneField");
         if (phoneFieldWrap) {
@@ -1351,6 +1371,11 @@
 
     const selectCountryByCode = function (countryCode) {
       const normalizedCode = normalizeDialCode(countryCode || "");
+      if (!normalizedCode) {
+        clearCountrySelection();
+        return;
+      }
+
       const matchedOption = scopedCountryOptions.find(function (option) {
         return normalizeDialCode(option.dataset.countryCode || "") === normalizedCode;
       });
@@ -1361,6 +1386,8 @@
         countryInput.value = normalizedCode;
       }
     };
+
+    clearCountrySelection();
 
     countryPickerTrigger.addEventListener("click", function () {
       if (countryPicker.classList.contains("is-open")) {
@@ -1701,7 +1728,7 @@
     clearWhatsAppModalState();
 
     if (whatsappModalCountryInput) {
-      syncCountryPickerByInput(whatsappModalCountryInput, phoneCountryInput ? phoneCountryInput.value : "+971");
+      syncCountryPickerByInput(whatsappModalCountryInput, phoneCountryInput ? phoneCountryInput.value : "");
     }
     if (whatsappModalPhoneInput) {
       whatsappModalPhoneInput.value = fields.phone && fields.phone.input ? String(fields.phone.input.value || "").trim() : "";
@@ -1826,7 +1853,7 @@
 
     clearWhatsAppModalState();
 
-    const rawCountryCode = whatsappModalCountryInput ? whatsappModalCountryInput.value : "+971";
+    const rawCountryCode = whatsappModalCountryInput ? whatsappModalCountryInput.value : "";
     const rawPhone = whatsappModalPhoneInput ? whatsappModalPhoneInput.value : "";
     const validatedPhone = buildValidatedPhoneNumber(rawPhone, rawCountryCode, allowedPhoneCountryCodes);
 

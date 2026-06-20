@@ -4102,8 +4102,17 @@ body::selection {
   gap: 0.5rem;
 }
 
-.hero-form-panel .country-picker-label {
+.hero-form-panel .country-picker.has-selection .country-picker-label {
   display: none;
+}
+
+.country-picker:not(.has-selection) .country-picker-flag,
+.country-picker:not(.has-selection) .country-picker-code {
+  display: none;
+}
+
+.country-picker:not(.has-selection) .country-picker-label {
+  color: rgba(232, 225, 219, 0.58);
 }
 
 .country-picker-code,

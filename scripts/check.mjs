@@ -238,8 +238,11 @@ for (const file of landingFiles) {
   assert(html.includes('id="landing_comments"'), `${file}: missing main comments field`);
   assert(html.includes("data-bottom-lead-form"), `${file}: missing bottom lead form`);
   assert(html.includes('id="bottom_phone_country"'), `${file}: missing bottom country code field`);
-  assert(/id="landing_phone_country"[^>]*value="\+971"/.test(html), `${file}: main country code should default to UAE +971`);
-  assert(/id="bottom_phone_country"[^>]*value="\+971"/.test(html), `${file}: bottom country code should default to UAE +971`);
+  assert(/id="landing_phone_country"[^>]*value=""/.test(html), `${file}: main country code should start empty`);
+  assert(/id="bottom_phone_country"[^>]*value=""/.test(html), `${file}: bottom country code should start empty`);
+  assert(html.includes("Select code"), `${file}: missing country-code placeholder`);
+  assert(!/id="landing_phone_country"[^>]*value="\+971"/.test(html), `${file}: main country code must not default to UAE +971`);
+  assert(!/id="bottom_phone_country"[^>]*value="\+971"/.test(html), `${file}: bottom country code must not default to UAE +971`);
   assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
   assert(html.includes("arancia-yards-regulatory-qr.jpeg"), `${file}: missing regulatory QR image`);
   assert(html.includes("permit-qr-badge"), `${file}: missing fixed regulatory QR badge`);

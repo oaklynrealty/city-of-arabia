@@ -96,7 +96,7 @@ function replaceOnce(source, searchValue, replacement, label) {
 }
 
 function patchValidation(source) {
-  let output = source.replace('if (!cleaned) return "+971";', 'if (!cleaned) return "";');
+  let output = source;
 
   if (!output.includes("function isSequentialDigits(value)")) {
     output = replaceOnce(

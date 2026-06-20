@@ -14,7 +14,7 @@ const sharedProject = {
   routePath: "/__oaklyn-lang/en",
   alternateThankYouPath: "/__oaklyn-lang/en-thank-you",
   homeHref: "/",
-  assetVersion: "20260620-arancia-direct-leads",
+  assetVersion: "20260620-arancia-select-country-code",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
   whatsappWebhookUrl: "",
   tracking: getTrackingConfig(),
