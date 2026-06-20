@@ -69,6 +69,50 @@ for (const term of [
   assert(clientJs.includes(term), `client.js: missing confirmed Lead advanced matching term ${term}`);
 }
 
+const requiredAranciaWebhookFields = [
+  '"Campaign name"',
+  '"Bedroom"',
+  '"Lead Name"',
+  '"Name"',
+  '"Last name"',
+  '"Source information"',
+  '"Comment"',
+  '"Ad system"',
+  '"Medium"',
+  '"Ad campaign UTM"',
+  '"Campaign contents"',
+  '"Campaign search term"',
+  '"Language"',
+  '"Property Type"',
+  '"Whatsapp Tracking Link"',
+  '"Events ID"',
+  '"Interested IN"',
+  '"Portal Lead ID"',
+  '"Property Link"',
+  '"Comments"',
+  '"Project Name"',
+  '"GCLID"',
+  '"FBCLID"',
+  '"UTM Source"',
+  '"UTM Medium"',
+  '"UTM Campaign"',
+  '"UTM Content"',
+  '"UTM Term"',
+  '"Phone (mobile)"',
+  '"E-mail (mailing)"',
+  '"Comment text"'
+];
+
+for (const field of requiredAranciaWebhookFields) {
+  assert(clientJs.includes(field), `client.js: missing Arancia CRM webhook field ${field}`);
+}
+
+assert(project.webhookUrl === "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/", "Arancia webhook URL changed unexpectedly");
+assert(clientJs.includes("isValidEmailValue"), "client.js: missing strict email validator");
+assert(clientJs.includes("BLOCKED_EMAIL_DOMAINS"), "client.js: missing disposable/test email domain blocker");
+assert(clientJs.includes("LANDING_PAGE_VARIANT"), "client.js: missing landing-page variant field");
+assert(clientJs.includes("lead_duplicate_suppressed"), "client.js: missing duplicate lead suppression");
+
 assert(!clientJs.includes('event: "phone_call_click"'), "client.js: call tracking should not be enabled");
 assert(!clientJs.includes("whatsappModalStatus"), "client.js: WhatsApp modal progress state should not exist");
 assert(!clientJs.includes("startWhatsAppProgressState"), "client.js: WhatsApp should use full-screen verification instead of modal progress");
@@ -191,6 +235,8 @@ for (const file of landingFiles) {
   assert(html.includes('id="landing_comments"'), `${file}: missing main comments field`);
   assert(html.includes("data-bottom-lead-form"), `${file}: missing bottom lead form`);
   assert(html.includes('id="bottom_phone_country"'), `${file}: missing bottom country code field`);
+  assert(/id="landing_phone_country"[^>]*value="\+971"/.test(html), `${file}: main country code should default to UAE +971`);
+  assert(/id="bottom_phone_country"[^>]*value="\+971"/.test(html), `${file}: bottom country code should default to UAE +971`);
   assert(html.includes('id="bottom_comments"'), `${file}: missing bottom comments field`);
   assert(html.includes("arancia-yards-regulatory-qr.jpeg"), `${file}: missing regulatory QR image`);
   assert(html.includes("permit-qr-badge"), `${file}: missing fixed regulatory QR badge`);

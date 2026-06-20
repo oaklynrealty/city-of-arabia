@@ -230,7 +230,7 @@ const phoneRulesBlock = `  const PHONE_LENGTH_RULES_BY_DIAL_CODE = {
   };
 
   function passesCountryPhoneRules(countryCode, nationalNumber) {
-    const digits = String(nationalNumber || "").replace(/\D/g, "");
+    const digits = String(nationalNumber || "").replace(/\\D/g, "");
     const allowedLengths = PHONE_LENGTH_RULES_BY_DIAL_CODE[countryCode];
 
     if (!allowedLengths) {

@@ -14,7 +14,7 @@ const sharedProject = {
   routePath: "/__oaklyn-lang/en",
   alternateThankYouPath: "/__oaklyn-lang/en-thank-you",
   homeHref: "/",
-  assetVersion: "20260618-arancia-fixed-qr-badge",
+  assetVersion: "20260620-arancia-crm-webhook-fields",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
   whatsappWebhookUrl: "",
   blacklistCheckUrl:

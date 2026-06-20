@@ -191,6 +191,7 @@ const getClientConfig = (options = {}) => ({
   landing_page_url: project.landingPageUrl,
   thank_you_page_url: project.thankYouPageUrl,
   webhook_url: project.webhookUrl,
+  whatsapp_tracking_link: getWhatsAppHref(),
   whatsapp_webhook_url: project.whatsappWebhookUrl || "",
   blacklist_check_url: project.blacklistCheckUrl || "",
   blacklist_timeout_ms: Number(project.blacklistTimeoutMs) || 8000,

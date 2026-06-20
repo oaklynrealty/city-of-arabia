@@ -475,6 +475,119 @@
     gad_creative: params.get("gad_creative") || ""
   };
 
+  const LANDING_PAGE_VARIANT = "arancia-yards-main";
+
+  function firstPresentValue(values) {
+    for (let index = 0; index < values.length; index += 1) {
+      const value = String(values[index] || "").trim();
+      if (value) return value;
+    }
+    return "";
+  }
+
+  function getCampaignName() {
+    return firstPresentValue([
+      params.get("campaign_name"),
+      params.get("campaign"),
+      utmData.utm_campaign,
+      "Arancia Yards by BEYOND"
+    ]);
+  }
+
+  function getCampaignSearchTerm() {
+    return firstPresentValue([
+      params.get("campaign_search_term"),
+      params.get("search_term"),
+      params.get("keyword"),
+      params.get("query"),
+      utmData.utm_term,
+      utmData.utm_keyword
+    ]);
+  }
+
+  function getLeadLanguage() {
+    return firstPresentValue([
+      config.current_language,
+      document.documentElement ? document.documentElement.lang : "",
+      navigator.language,
+      "en"
+    ]);
+  }
+
+  function getAdSystem() {
+    const source = String(utmData.utm_source || "").toLowerCase();
+    const medium = String(utmData.utm_medium || "").toLowerCase();
+    const platform = String(utmData.utm_platform || "").toLowerCase();
+
+    if (clickIds.gclid || clickIds.gbraid || clickIds.wbraid || source.includes("google") || platform.includes("google")) {
+      return "Google Ads";
+    }
+
+    if (
+      clickIds.fbclid ||
+      source.includes("facebook") ||
+      source.includes("instagram") ||
+      source.includes("meta") ||
+      platform.includes("meta")
+    ) {
+      return "Meta";
+    }
+
+    if (clickIds.ttclid || source.includes("tiktok") || platform.includes("tiktok")) return "TikTok";
+    if (clickIds.ScCid || source.includes("snapchat") || platform.includes("snapchat")) return "Snapchat";
+    if (clickIds.li_fat_id || source.includes("linkedin") || platform.includes("linkedin")) return "LinkedIn";
+    if (clickIds.rdt_cid || source.includes("reddit") || platform.includes("reddit")) return "Reddit";
+    if (medium === "organic") return "Organic";
+
+    return utmData.utm_source || "Website";
+  }
+
+  function getTrackingMedium(adSystem) {
+    return firstPresentValue([
+      utmData.utm_medium,
+      adSystem === "Google Ads" ? "cpc" : "",
+      adSystem === "Meta" ? "paid_social" : "",
+      "website"
+    ]);
+  }
+
+  function buildSourceInformation(adSystem, medium, campaignName) {
+    return [
+      "Source: " + (utmData.utm_source || adSystem || "Website"),
+      "Medium: " + (medium || "website"),
+      "Campaign: " + (campaignName || "Arancia Yards by BEYOND"),
+      "Content: " + (utmData.utm_content || ""),
+      "Search term: " + getCampaignSearchTerm(),
+      "Page: " + window.location.href
+    ].join(" | ");
+  }
+
+  function buildCrmComment(details) {
+    return [
+      "Project: " + details.projectName,
+      "Lead name: " + details.fullName,
+      "Phone: " + details.phone,
+      "Email: " + details.email,
+      "Country: " + details.country,
+      "Bedroom: " + details.bedroom,
+      "Property type: " + details.propertyType,
+      "Interested in: " + details.interestedIn,
+      "Client comment: " + details.comment,
+      "Source: " + details.sourceInformation,
+      "GCLID: " + details.gclid,
+      "FBCLID: " + details.fbclid,
+      "UTM Source: " + details.utmSource,
+      "UTM Medium: " + details.utmMedium,
+      "UTM Campaign: " + details.utmCampaign,
+      "UTM Content: " + details.utmContent,
+      "UTM Term: " + details.utmTerm,
+      "Campaign search term: " + details.campaignSearchTerm,
+      "Property link: " + details.propertyLink,
+      "WhatsApp link: " + details.whatsappLink,
+      "Events ID: " + details.eventId
+    ].join("\n");
+  }
+
   function injectLanguageSwitcher() {
     if (!config.language_switcher_enabled || !config.landing_page_url || document.querySelector("[data-language-switcher]")) return;
 
@@ -1015,6 +1128,77 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  const BLOCKED_EMAIL_DOMAINS = new Set([
+    "10minutemail.com",
+    "dispostable.com",
+    "example.com",
+    "fake.com",
+    "guerrillamail.com",
+    "mailinator.com",
+    "sharklasers.com",
+    "tempmail.com",
+    "test.com",
+    "yopmail.com"
+  ]);
+
+  const BLOCKED_EMAIL_LOCAL_PARTS = new Set([
+    "a",
+    "aa",
+    "abc",
+    "asdf",
+    "fake",
+    "na",
+    "none",
+    "null",
+    "qwerty",
+    "test",
+    "testing",
+    "user"
+  ]);
+
+  const COMMON_EMAIL_TYPOS = new Set([
+    "gmal.com",
+    "gmail.con",
+    "gnail.com",
+    "gmial.com",
+    "hotmil.com",
+    "hotnail.com",
+    "outlook.con",
+    "yaho.com",
+    "yahoo.con"
+  ]);
+
+  function isValidEmailValue(value) {
+    const email = normalizeEmailValue(value);
+    if (email.length < 6 || email.length > 254) return false;
+    if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(email)) return false;
+
+    const parts = email.split("@");
+    if (parts.length !== 2) return false;
+
+    const localPart = parts[0];
+    const domain = parts[1];
+    if (!localPart || localPart.length > 64 || localPart.startsWith(".") || localPart.endsWith(".") || localPart.includes("..")) {
+      return false;
+    }
+
+    if (BLOCKED_EMAIL_LOCAL_PARTS.has(localPart) || /^test\d*$/i.test(localPart) || /^fake\d*$/i.test(localPart)) {
+      return false;
+    }
+
+    if (!domain || domain.includes("..") || BLOCKED_EMAIL_DOMAINS.has(domain) || COMMON_EMAIL_TYPOS.has(domain)) {
+      return false;
+    }
+
+    const domainLabels = domain.split(".");
+    if (domainLabels.some((label) => !label || label.startsWith("-") || label.endsWith("-"))) {
+      return false;
+    }
+
+    const topLevelDomain = domainLabels[domainLabels.length - 1] || "";
+    return /^[a-z]{2,24}$/i.test(topLevelDomain);
+  }
+
   function normalizeBlacklistUrl(value) {
     return String(value || "").trim();
   }
@@ -1099,6 +1283,15 @@
       })
       .filter(Boolean)
   );
+
+  function getSelectedCountryLabel(countryCode) {
+    const normalizedCode = normalizeDialCode(countryCode || "");
+    const selectedOption = countryOptions.find(function (option) {
+      return normalizeDialCode(option.dataset.countryCode || "") === normalizedCode;
+    });
+
+    return selectedOption ? String(selectedOption.dataset.countryLabel || "").trim() : "";
+  }
 
   if (gclidInput) gclidInput.value = clickIds.gclid;
   if (gbraidInput) gbraidInput.value = clickIds.gbraid;
@@ -1425,7 +1618,7 @@
       input: document.getElementById("landing_email"),
       wrap: document.getElementById("emailField"),
       test: function (value) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+        return isValidEmailValue(value);
       }
     },
     comments: {
@@ -1516,7 +1709,7 @@
       input: document.getElementById("bottom_email"),
       wrap: document.getElementById("bottomEmailField"),
       test: function (value) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+        return isValidEmailValue(value);
       }
     },
     comments: {
@@ -2140,11 +2333,53 @@
         submitBtn.textContent = "Submitting...";
       }
 
+      const submittedAt = new Date().toISOString();
+      const nameParts = splitFullNameForMatching(fullName);
+      const resolvedFirstName = firstName || nameParts.firstName;
+      const resolvedLastName = lastName || nameParts.lastName;
+      const campaignName = getCampaignName();
+      const campaignSearchTerm = getCampaignSearchTerm();
+      const adSystem = getAdSystem();
+      const medium = getTrackingMedium(adSystem);
+      const sourceInformation = buildSourceInformation(adSystem, medium, campaignName);
+      const leadLanguage = getLeadLanguage();
+      const selectedCountry = getSelectedCountryLabel(phoneCountryCode) || phoneCountryCode;
+      const propertyLink = config.landing_page_url || window.location.href;
+      const whatsappTrackingLink =
+        config.whatsapp_tracking_link ||
+        "https://wa.me/971505886769?text=Hello%20Oaklyn%20Realty%2C%20I%20am%20interested%20in%20Arancia%20Yards%20by%20BEYOND";
+      const leadCommentText = formComments || formInquiry || "Arancia Yards by BEYOND inquiry";
+      const crmComment = buildCrmComment({
+        projectName: config.project_name,
+        fullName,
+        phone: formPhone,
+        email: formEmail,
+        country: selectedCountry,
+        bedroom: formUnit,
+        propertyType: formInquiry,
+        interestedIn: config.project_name,
+        comment: leadCommentText,
+        sourceInformation,
+        gclid: clickIds.gclid,
+        fbclid: clickIds.fbclid,
+        utmSource: utmData.utm_source,
+        utmMedium: utmData.utm_medium,
+        utmCampaign: utmData.utm_campaign,
+        utmContent: utmData.utm_content,
+        utmTerm: utmData.utm_term,
+        campaignSearchTerm,
+        propertyLink,
+        whatsappLink: whatsappTrackingLink,
+        eventId: leadId
+      });
+
       const payload = Object.assign(
         {
           lead_id: leadId,
-          first_name: firstName,
-          last_name: lastName,
+          event_id: leadId,
+          events_id: leadId,
+          first_name: resolvedFirstName,
+          last_name: resolvedLastName,
           full_name: fullName,
           name: formName,
           phone: formPhone,
@@ -2154,8 +2389,8 @@
           email: formEmail,
           unit: formUnit,
           inquiry: formComments || formInquiry,
-          comments: formComments,
-          inquiry_message: formComments,
+          comments: leadCommentText,
+          inquiry_message: leadCommentText,
           preferred_project: formUnit,
           preferred_unit: formUnit,
           property_type: formInquiry,
@@ -2167,11 +2402,22 @@
           source_page: config.source_page,
           landing_page_url: config.landing_page_url,
           thank_you_page_url: config.thank_you_page_url,
+          property_link: propertyLink,
+          whatsapp_tracking_link: whatsappTrackingLink,
+          general_whatsapp_link: whatsappTrackingLink,
+          campaign_name: campaignName,
+          campaign_search_term: campaignSearchTerm,
+          source_information: sourceInformation,
+          ad_system: adSystem,
+          medium,
+          language: leadLanguage,
+          country: selectedCountry,
+          landing_page_variant: LANDING_PAGE_VARIANT,
           project: config.project_name,
           brokerage: "Oaklyn Realty",
           source: document.referrer || "direct",
-          submitted_at: new Date().toISOString(),
-          timestamp: new Date().toISOString(),
+          submitted_at: submittedAt,
+          timestamp: submittedAt,
           page: window.location.href,
           page_url: window.location.href,
           gclid: clickIds.gclid,
@@ -2191,9 +2437,57 @@
           buyer_type: "",
           preferred_contact: "",
           budget_range: "",
-          message: formComments,
+          message: leadCommentText,
+          crm_comment: crmComment,
           gdpr_consent:
-            "By submitting this form, you agree to be contacted by our property consultants regarding your inquiry."
+            "By submitting this form, you agree to be contacted by our property consultants regarding your inquiry.",
+          TITLE: config.project_name + " - " + fullName,
+          "Lead Title": config.project_name + " - " + fullName,
+          FULL_NAME: fullName,
+          NAME: resolvedFirstName || fullName,
+          LAST_NAME: resolvedLastName,
+          PHONE_WORK: formPhone,
+          PHONE_MOBILE: formPhone,
+          EMAIL_WORK: formEmail,
+          COMMENTS: crmComment,
+          SOURCE_ID: adSystem,
+          SOURCE_DESCRIPTION: sourceInformation,
+          "Campaign name": campaignName,
+          "Bedroom": formUnit,
+          "Lead Name": fullName,
+          "Name": resolvedFirstName || fullName,
+          "Last name": resolvedLastName,
+          "Source information": sourceInformation,
+          "Comment": crmComment,
+          "Ad system": adSystem,
+          "Medium": medium,
+          "Ad campaign UTM": utmData.utm_campaign,
+          "Campaign contents": utmData.utm_content,
+          "Campaign search term": campaignSearchTerm,
+          "Language": leadLanguage,
+          "Property Type": formInquiry,
+          "Whatsapp Tracking Link": whatsappTrackingLink,
+          "Events ID": leadId,
+          "Interested IN": config.project_name,
+          "Portal Lead ID": leadId,
+          "Property Link": propertyLink,
+          "Comments": crmComment,
+          "Project Name": config.project_name,
+          "GCLID": clickIds.gclid,
+          "FBCLID": clickIds.fbclid,
+          "UTM Source": utmData.utm_source,
+          "UTM Medium": utmData.utm_medium,
+          "UTM Campaign": utmData.utm_campaign,
+          "UTM Content": utmData.utm_content,
+          "UTM Term": utmData.utm_term,
+          "Phone (mobile)": formPhone,
+          "E-mail (mailing)": formEmail,
+          "Comment text": crmComment,
+          "Country": selectedCountry,
+          "Country code": phoneCountryCode,
+          "Landing-page variant": LANDING_PAGE_VARIANT,
+          "Event": "lead_success",
+          "Webhook": config.webhook_url
         },
         utmData
       );
@@ -2221,7 +2515,15 @@
                 lead_id: leadId,
                 event_id: leadId,
                 blacklist_status: "clear",
-                webhook_status: "success"
+                webhook_status: "success",
+                campaign_name: campaignName,
+                campaign_search_term: campaignSearchTerm,
+                ad_system: adSystem,
+                medium,
+                language: leadLanguage,
+                portal_lead_id: leadId,
+                property_link: propertyLink,
+                whatsapp_tracking_link: whatsappTrackingLink
               },
               buildLeadMatchingTrackingFields(leadMatchData),
               clickIds,
@@ -2266,14 +2568,23 @@
                 lead_id: leadId,
                 event_id: leadId,
                 form_submission_confirmed: true,
+                form_submission_confirmed_text: "true",
                 blacklist_status: "clear",
                 webhook_status: "success",
                 preferred_unit: formUnit,
                 preferred_project: formUnit,
                 property_type: formInquiry,
                 inquiry_type: formInquiry,
-                comments: formComments,
-                inquiry_message: formComments
+                comments: leadCommentText,
+                inquiry_message: leadCommentText,
+                campaign_name: campaignName,
+                campaign_search_term: campaignSearchTerm,
+                ad_system: adSystem,
+                medium,
+                language: leadLanguage,
+                portal_lead_id: leadId,
+                property_link: propertyLink,
+                whatsapp_tracking_link: whatsappTrackingLink
               },
               buildLeadMatchingTrackingFields(leadMatchData),
               clickIds,
