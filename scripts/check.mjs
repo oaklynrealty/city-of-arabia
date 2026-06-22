@@ -108,6 +108,11 @@ for (const field of requiredAranciaWebhookFields) {
 }
 
 assert(project.webhookUrl === "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/", "Arancia webhook URL changed unexpectedly");
+assert(clientJs.includes("trackGoogleAdsLeadConversion"), "client.js: missing Arancia direct Google Ads conversion fallback");
+assert(clientJs.includes("google_ads_conversion_dispatched"), "client.js: missing Google Ads conversion dispatch diagnostic event");
+assert(clientJs.includes("transaction_id"), "client.js: Google Ads conversion must include transaction_id for deduplication");
+assert(project.googleAdsConversion?.conversionId === "AW-18209773990", "Arancia Google Ads conversion ID missing");
+assert(project.googleAdsConversion?.conversionLabel === "oCD6CPHVq7gcEKazjOtD", "Arancia Google Ads conversion label missing");
 assert(clientJs.includes("isValidEmailValue"), "client.js: missing strict email validator");
 assert(clientJs.includes("BLOCKED_EMAIL_DOMAINS"), "client.js: missing disposable/test email domain blocker");
 assert(clientJs.includes("LANDING_PAGE_VARIANT"), "client.js: missing landing-page variant field");

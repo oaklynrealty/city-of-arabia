@@ -192,6 +192,7 @@ const getClientConfig = (options = {}) => ({
   landing_page_url: project.landingPageUrl,
   thank_you_page_url: project.thankYouPageUrl,
   webhook_url: project.webhookUrl,
+  google_ads_conversion: project.googleAdsConversion,
   whatsapp_tracking_link: getWhatsAppHref(),
   whatsapp_webhook_url: project.whatsappWebhookUrl || "",
   duplicate_submission_message:

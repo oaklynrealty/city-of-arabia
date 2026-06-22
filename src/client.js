@@ -751,6 +751,112 @@
     });
   }
 
+  const googleAdsTagLoaders = {};
+
+  function getGoogleAdsConversionConfig() {
+    const conversion = config.google_ads_conversion || {};
+    return {
+      conversionId: String(conversion.conversionId || conversion.conversion_id || "").trim(),
+      conversionLabel: String(conversion.conversionLabel || conversion.conversion_label || "").trim(),
+      value: Number(conversion.value || 1),
+      currency: String(conversion.currency || "AED").trim() || "AED"
+    };
+  }
+
+  function ensureGoogleAdsTag(conversion) {
+    const conversionId = conversion && conversion.conversionId;
+    if (!conversionId) return Promise.resolve(false);
+
+    window.dataLayer = window.dataLayer || [];
+    if (typeof window.gtag !== "function") {
+      window.gtag = function () {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag("js", new Date());
+    }
+
+    window.gtag("config", conversionId, { send_page_view: false });
+
+    const scriptId = "oaklyn-google-ads-" + conversionId.replace(/[^a-z0-9_-]/gi, "-");
+    if (document.getElementById(scriptId)) return Promise.resolve(true);
+    if (googleAdsTagLoaders[conversionId]) return googleAdsTagLoaders[conversionId];
+
+    googleAdsTagLoaders[conversionId] = new Promise(function (resolve) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(conversionId);
+      script.onload = function () {
+        window.gtag("config", conversionId, { send_page_view: false });
+        resolve(true);
+      };
+      script.onerror = function () {
+        resolve(false);
+      };
+      document.head.appendChild(script);
+    });
+
+    return googleAdsTagLoaders[conversionId];
+  }
+
+  function trackGoogleAdsLeadConversion(payload) {
+    const conversion = getGoogleAdsConversionConfig();
+    if (!conversion.conversionId || !conversion.conversionLabel) return;
+
+    const transactionId = String(
+      (payload && (payload.event_id || payload.lead_id || payload.events_id || payload.portal_lead_id)) ||
+        config.project_slug + "_" + Date.now()
+    );
+    const dedupeKey = "oaklyn_ads_conversion_" + config.project_slug + "_" + transactionId;
+
+    try {
+      if (window.sessionStorage.getItem(dedupeKey)) return;
+      window.sessionStorage.setItem(dedupeKey, "1");
+    } catch (error) {}
+
+    ensureGoogleAdsTag(conversion)
+      .then(function () {
+        if (typeof window.gtag !== "function") {
+          throw new Error("Google tag is not available.");
+        }
+
+        window.gtag("event", "conversion", {
+          send_to: conversion.conversionId + "/" + conversion.conversionLabel,
+          value: conversion.value,
+          currency: conversion.currency,
+          transaction_id: transactionId,
+          event_callback: function () {
+            pushDataLayerEvent({
+              event: "google_ads_conversion_callback",
+              event_id: transactionId,
+              lead_id: transactionId,
+              conversion_id: conversion.conversionId,
+              conversion_label: conversion.conversionLabel
+            });
+          },
+          event_timeout: 2000
+        });
+
+        pushDataLayerEvent({
+          event: "google_ads_conversion_dispatched",
+          event_id: transactionId,
+          lead_id: transactionId,
+          conversion_id: conversion.conversionId,
+          conversion_label: conversion.conversionLabel,
+          transaction_id: transactionId
+        });
+      })
+      .catch(function (error) {
+        pushDataLayerEvent({
+          event: "google_ads_conversion_error",
+          event_id: transactionId,
+          lead_id: transactionId,
+          conversion_id: conversion.conversionId,
+          error_message: error && error.message ? error.message : "unknown"
+        });
+      });
+  }
+
   function createLeadId() {
     return config.project_slug + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
   }
@@ -2301,40 +2407,40 @@
             success.scrollIntoView({ behavior: "smooth", block: "center" });
           }
           leadMatchData = leadMatchData || buildLeadMatchData(payload);
-          pushDataLayerEvent(
-            Object.assign(
-              {
-                event: "lead_success",
-                conversion_type: "form",
-                conversion_action: "form_submission",
-                project: config.project_name,
-                project_name: config.project_name,
-                project_slug: config.project_slug,
-                lead_id: leadId,
-                event_id: leadId,
-                form_submission_confirmed: true,
-                form_submission_confirmed_text: "true",
-                webhook_status: "success",
-                preferred_unit: formUnit,
-                preferred_project: formUnit,
-                property_type: formInquiry,
-                inquiry_type: formInquiry,
-                comments: leadCommentText,
-                inquiry_message: leadCommentText,
-                campaign_name: campaignName,
-                campaign_search_term: campaignSearchTerm,
-                ad_system: adSystem,
-                medium,
-                language: leadLanguage,
-                portal_lead_id: leadId,
-                property_link: propertyLink,
-                whatsapp_tracking_link: whatsappTrackingLink
-              },
-              buildLeadMatchingTrackingFields(leadMatchData),
-              clickIds,
-              utmData
-            )
+          const leadSuccessEvent = Object.assign(
+            {
+              event: "lead_success",
+              conversion_type: "form",
+              conversion_action: "form_submission",
+              project: config.project_name,
+              project_name: config.project_name,
+              project_slug: config.project_slug,
+              lead_id: leadId,
+              event_id: leadId,
+              form_submission_confirmed: true,
+              form_submission_confirmed_text: "true",
+              webhook_status: "success",
+              preferred_unit: formUnit,
+              preferred_project: formUnit,
+              property_type: formInquiry,
+              inquiry_type: formInquiry,
+              comments: leadCommentText,
+              inquiry_message: leadCommentText,
+              campaign_name: campaignName,
+              campaign_search_term: campaignSearchTerm,
+              ad_system: adSystem,
+              medium,
+              language: leadLanguage,
+              portal_lead_id: leadId,
+              property_link: propertyLink,
+              whatsapp_tracking_link: whatsappTrackingLink
+            },
+            buildLeadMatchingTrackingFields(leadMatchData),
+            clickIds,
+            utmData
           );
+          pushDataLayerEvent(leadSuccessEvent);
+          trackGoogleAdsLeadConversion(Object.assign({}, payload, leadSuccessEvent));
           writeLeadSuccessState(leadId);
         });
     });

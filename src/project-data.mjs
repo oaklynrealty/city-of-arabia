@@ -14,10 +14,16 @@ const sharedProject = {
   routePath: "/__oaklyn-lang/en",
   alternateThankYouPath: "/__oaklyn-lang/en-thank-you",
   homeHref: "/",
-  assetVersion: "20260620-arancia-select-country-code",
+  assetVersion: "20260622-arancia-google-ads-1",
   webhookUrl: "https://hooks.zapier.com/hooks/catch/27424919/uvzwm7a/",
   whatsappWebhookUrl: "",
   tracking: getTrackingConfig(),
+  googleAdsConversion: {
+    conversionId: "AW-18209773990",
+    conversionLabel: "oCD6CPHVq7gcEKazjOtD",
+    value: 1,
+    currency: "AED"
+  },
   showMobileMenu: false,
   brand: {
     company: "Oaklyn Realty",
